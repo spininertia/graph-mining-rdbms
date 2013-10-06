@@ -2,7 +2,7 @@ SELECT outdegree, count(*)
 FROM
 	(
 		SELECT count(*)
-		FROM graph
-		GROUP BY from_node
+		FROM edge
+		GROUP BY src_id
 	) as outdegree
 GROUP BY outdegree
