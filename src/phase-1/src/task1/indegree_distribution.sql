@@ -2,7 +2,7 @@ SELECT indegree, count(*)
 FROM
 	(
 		SELECT count(*)
-		FROM graph
-		GROUP BY to_node
+		FROM edge
+		GROUP BY dst_id
 	) AS indegree
 GROUP BY indegree
