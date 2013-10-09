@@ -1,8 +1,1 @@
-SELECT indegree, count(*)
-FROM
-	(
-		SELECT count(*)
-		FROM edge
-		GROUP BY dst_id
-	) AS indegree
-GROUP BY indegree
+SELECT indegree, count(*) FROM ( SELECT count(*) as indegree FROM edge GROUP BY dst_id ) as indegree GROUP BY indegree order by indegree
