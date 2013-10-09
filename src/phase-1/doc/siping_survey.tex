@@ -1,20 +1,37 @@
 \subsection{Papers read by Siping Ji}
-The first paper was the wavelet paper by Daubechies
-\cite{Daubechies92Ten}
+The first paper was the wavelet paper by Kang
+\cite{Kang09}
 \begin{itemize*}
-\item {\em Main idea}: instead of using Fourier transform,
-      wavelet basis functions are localized in frequency {\em and} time.
-      It turns out that they fit real signals better,
-      in the sense they need fewer non-zero coefficients to reconstruct
-      them. Thus they achieve better compression.
+\item {\em Main idea}: 
+		This paper proposes a parallel programming primitive GIM-V that captures the shared characteristics among many seemingly different graph mining algorithms. The key idea is that the computation of graph mining algorithms like Pagerank, RWR, diameter estimation and so on, are essentially iterations of a generalized matrix-vector multiplication. More specifically, this generalized matrix-vector computation step can be captured by three basic operators in GIM-V - combine2, combineAll and assign. Based on this abstraction, many graph mining algorithms can be effciently computed via GIM-V over hadoop. Further, the author addresses the problem of high computational overhead of the shuffling stage in map-reduce. To overcome the problem and thus enhance the scalability, the author introduces several techniques, namely blocking, edge-clustering, diagonal block iteration and node renumbering into the implementation of GIM-V.
 \item {\em Use for our project}:
-      it is extremely related to our sound-clip similarity
-      project, because we can use the top few wavelet coefficients
-      to compare two sound clips.
-\item {\em Shortcomings}:
-      The Daubechies wavelets require a wrap-around setting,
-      which may lead to non-intuitive results.
-\end{itemize*}
-The second paper was by $\ldots$
+      Although GIM-V is a hadoop-based implementation, it is still a good reference for us since matrix-vector multiplication is easy to implement under SQL.  We can also implement the operator primitives of GIM-V(combine2, combineAll and assign) using user-defined function in PostgreSQL.
 
-The third paper was by $\ldots$
+\item {\em Shortcomings}:
+      
+\end{itemize*}
+The second paper was by Kang
+\cite{DBLP:conf/icdm/KangMAF10}
+\begin{itemize*}
+\item {\em Main idea}: 
+		This paper studies and analyzes the patterns in connected components in real world large graphs. By introducing the concept of Graph Fractal Dimension(GFD) as a measure of the density of a connected component and the maximum effective radius(MER) vs. average effective radius(AER) ratio, the author shows there exists both consistency and difference among connected components of different size. Besides, the author also suggests an log-linear relationship between rebel probability of a newcomer node and its degree in dynamically evolving graphs. Based on these observations, the author proposes a Community Connection model to explain the growth process of a graph and justifies that this model correctly captures the patterns they discovered.
+
+\item {\em Use for our project}:
+      It is very relevant to the task of implementing the connected component algorithm. Additionally, this paper exemplifies how to discover, analyze and model the hidden pattern in a graph instead of treating statistics only as useless numbers. I think this helps us better explain the result in our experiment process.
+
+\item {\em Shortcomings}:
+	Though this paper discusses extensively about analyzing and model patterns of connected components of a graph, it doesn’t address much about how to apply this pattern and model to applications. Also, the implementation detail of finding connected components is ignored in the paper, which is what our project mainly focuses.
+
+\end{itemize*}
+
+The third paper was by Kang
+\cite{kang2010inference}
+\begin{itemize*}
+\item {\em Main idea}:  
+		Belief Propagation(BP) is an popular graphical model algorithm for inferring the states of nodes in Markov Random Fields, it has been successfully applied to many problems in the fields of social network analysis, computer vision and so on. There already exists many efficient BP algorithms, but all of them assumes the graph can fit in main memory. This paper addresses exactly the problem of how to scale up the belief propagation(BP) algorithm to giant graphs with billions of nodes that can only stored on disks. The author first proposes the GIM-V - a primitive for parallel graph mining algorithms based on hadoop. It is based on the observation that the computation process of many existing graph mining algorithm like pagerank, random walk with restart are essentially repeated matrix vector multiplication by customizing the sub-operations in a matrix multiplication. Next, the author shows that by converting the original graph to a directed line graph, the key step in the BP computation that updates the messages vectors can be viewed as a process of matrix-vector multiplication, and thus can be applied to the framework of GIM-V. To further improve the efficiency of the parallel computing algorithm, the author introduces a trick of lazy multiplication to reduce the computation cost of multiplication operations. In the experiment, it shows that the method proposed beat the single machine BP algorithm in terms of running time, and when the number of machines increases, the algorithm scales up near linearly.
+
+\item {\em Use for our project}:
+       Although the algorithm proposed in this paper is based on hadoop, it's still insightful to see the reinterpretation of the process of computing BP as a matrix-vector multiplication step. This insight may inspire us to efficiently compute BP in RDBMS, since the computation of sparse matrix-vector multiplication can be very efficient due to highly optimized query execution and in-memory index.
+\item {\em Shortcomings}:
+		The major weakness of this paper is that it only compare their method to single-machine BP algorithm. It also lacks the theoretic justification for the near-liner scalability of their algorithm.
+\end{itemize*}
