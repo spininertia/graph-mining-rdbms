@@ -2,6 +2,8 @@ MAIN= paper
 TEXPARTS= 	$(MAIN).tex 		\
 		000abstract.tex		\
 		010intro.tex 		\
+		siping_survey.tex   \
+		weichen_survey.tex  \
 		020survey.tex 		\
 		030method.tex 		\
 		040experiments.tex 	\
