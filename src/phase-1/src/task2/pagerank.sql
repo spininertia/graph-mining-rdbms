@@ -2,13 +2,11 @@ CREATE OR REPLACE FUNCTION calc_pagerank() RETURNS VOID AS
 $$
 DECLARE
     currentIndex integer;
-    diff real;
-    num_of_nodes integer;
+    diff real;   -- change in pagerank
+    num_of_nodes integer; 
     damper real;
     nrank real;
-    src_degree integer;
     nid integer;
-    sid integer;
 BEGIN
     drop table if exists pagerank;
     drop table if exists pagerank_tmp;
