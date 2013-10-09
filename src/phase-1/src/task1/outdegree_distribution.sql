@@ -1,8 +1,1 @@
-SELECT outdegree, count(*)
-FROM
-	(
-		SELECT count(*)
-		FROM edge
-		GROUP BY src_id
-	) as outdegree
-GROUP BY outdegree
+SELECT outdegree, count(*) FROM ( SELECT count(*) as outdegree FROM edge GROUP BY src_id ) as outdegree GROUP BY outdegree order by outdegree
