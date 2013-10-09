@@ -1,15 +1,8 @@
-The main motivation behind our method
-is to handle spikes carefully.
-Since the input signals are noisy, with bursty noise,
-traditional methods like time-warping and wavelets
-will focus on the spikes, and ignore the rest of the signal,
-giving misleading results.
+We implement all the graph mining algorithms using Postgres's embedded PL/pgSQL programming language, which supports many advanced features, like user defined function, aggregate, etc. It also has a sophisticated query execution engine, which we think is the most critical component of Postgres.
 
-Our proposed method is as follows: 
-We will use the spike-detection method of $\ldots$,
-to remove spikes, and only then,  we use the $k$ strongest
-Daubechies-4 wavelet coefficients, to compare the two (spike-removed)
-sound clips.
+The following are the algorithms we plan to implement. The reason we choose them is that there are a lot of implementation in other platform like MapReduce, we can compare our SQL version with them to draw a clusion about SQL's unique charastic in solving data analytic tasks.
 
-$\ldots$
-
+\begin{description}
+  \item[PageRank:] Determine the importance of every node of a graph based on its connectivity. 
+  \item[Connected Components:] Partition the nodes of a graph also based on its connectivity.
+\end{description}
