@@ -1,20 +1,44 @@
 \subsection{Papers read by Wei Chen}
-The first paper was the wavelet paper by Daubechies
-\cite{Daubechies92Ten}
+The first paper was "Mining Large Graphs: Algorithms, Inference, and Discoveries".
+\cite{DBLP:conf/icde/KangCF11}
 \begin{itemize*}
-\item {\em Main idea}: instead of using Fourier transform,
-      wavelet basis functions are localized in frequency {\em and} time.
-      It turns out that they fit real signals better,
-      in the sense they need fewer non-zero coefficients to reconstruct
-      them. Thus they achieve better compression.
+\item {\em Main idea}: This paper discuss how to do inference in graphical model under distributed setting, what if graph can not fit into main memory. They propose a variant of Belief Propagation called Line Graph Fixed Point(LFP) to address this issue. The key step is to induce a new graph from original graph, then apply inear algebra opration on it. They also propose an algorithm designed for Hadoop called Ha-LFP, which is a direct implementation of LFP. Ha-LFP solves the biggest of the most graph mining algorithm--scalability. Since Ha-LFP is based on Hadoop, it inherits fault tolerence, data replication natively.
 \item {\em Use for our project}:
-      it is extremely related to our sound-clip similarity
-      project, because we can use the top few wavelet coefficients
-      to compare two sound clips.
+      LFP seems like a promising method to do Belief Propagation. Matrix operation is tracable in SQL, and can be optimized by RBDMS. The performance could be comparable to Hadoop version.
 \item {\em Shortcomings}:
-      The Daubechies wavelets require a wrap-around setting,
-      which may lead to non-intuitive results.
+      It's kind of tricky to say this algorithm solve scalabiliy perfectly. I think this is more contributed to Hadoop instead of LFP. There may exist better formlation of Belief Propagation on Hadoop. The experiments are conducted on M45, which is one of the most advanced supercomputer.
 \end{itemize*}
-The second paper was by $\ldots$
 
-The third paper was by $\ldots$
+
+The second paper was "Understanding Belief Propagation and its Generalizations".
+\cite{bp}
+\begin{itemize*}
+\item {\em Main idea}: Marginal Probability is important in inferencing. This paper illustrates two methods of its computation. The core idea of these algorithms exploit structures in Graphic Model to reduce the redundant computation, each node passes messages to other nodes, and receive messages from other nodes, then update its own belief. This is called Belief Propagation or Message Passing. Then Generalized Belief Propagation extend BP to group of nodes.
+\item {\em Use for our project}:
+      We can employ algorithms described in this paper to calculate marginal probability.
+\item {\em Shortcomings}:
+       There is not much discussion about the implementation in SQL. While user defined functions provided by PostgreSQL has limited expressiveness, so the real implementation will be quite different.
+\end{itemize*}
+
+
+The third paper was "A Comparison of Approaches to Large-Scale Data Analysis".
+\cite{olston2008pig}
+\begin{itemize*}
+\item {\em Main idea}: 
+    This paper compares the tradeoff between Parallel DBMS and MapReduce framework in large data analysis. The authors want to advocate the capability of Parallel DBMS in implmenting large scale analytic tasks. The paper analyze the fundamental difference of Parallel DBMS and MapReduce, their support in schema, data distribution, fault tolerence, index, and utility tools. Then they conduct experiments about their performance in different tasks, like pattern searching, aggregation, join, etc. They conclude that Parallel DBMS outperforms MapReduce in all kinds of tasks. But Parallel DBMS requires a lot of effort to configure and profile to reach good performance, MapReduce is relatively much easier to use. In the end, the paper admit MapReduce's advantage over complex Parallel DBMS, while still suggest Parallel DBMS as an option for specific tasks.
+\item {\em Use for our project}:
+    We can borrow some ideas from theirs experiments about investigate SQL function. Their analysis method is also a good model to follow.
+\item {\em Shortcomings}:
+    The tasks they experimented are kind of trivial. We don't know the real difference in when the systems are used for more complex graph mining algorithms.
+\end{itemize*}
+
+The fourth paper was "Pig Latin: A Not-So-Foreign Language for Data Processing".
+\cite{pavlo2009comparison}
+\begin{itemize*}
+\item {\em Main idea}: 
+    Eithor RDBMS or MapReduce framework represents some extreme, either unnatural for programmers' mind(SQL) or too low level to express many algorithms(MapReduce). Pig Latin is a balance of these two styles. A Pig Latin progam is written in a SQL-like style, while provides user with more control over dataflow, then it is compiled into map-reduce jobs automatically.
+\item {\em Use for our project}:
+    Pig Latin's SQL-like syntax provides finer grained control over dataflow, which is more suitable for implementing graph mining aglorithms. We can compare with SQL user defined function implementation of these algorithms, and analyze their intrinsic data accessing charactics.
+\item {\em Shortcomings}:
+    There are few graph mining algorithm implementation in Pig Latin, only a few open source analysis package like Linkedin's Datafu. And Pig only supports read-only data analysis workloads, which may lead to many unnecessary efforts if we want to do extensive write duing computation.
+\end{itemize*}
