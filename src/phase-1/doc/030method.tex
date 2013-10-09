@@ -5,10 +5,23 @@ The following are the algorithms we plan to implement. The reason we choose them
 \begin{description}
   \item[PageRank:] Determine the importance of every node of a graph based on its connectivity. 
   \item[Connected Components:] Partition the nodes of a graph also based on its connectivity.
-
-
 \end{description}
 
+\subsection{Pagerank}
+The algorithm of pagerank is Power method. We do matrix multiplication continusly until the change in pagerank is small. 
+\begin{algorithm}
+\caption{Pagerank}
+\begin{algorithmic}
+\STATE{Bulk load graph into an edge table in database.}
+\STATE{Initialization(damper factor=0.85, max iteration = 100, epsilon = 0.0001)}
+\STATE{Build a weight matrix trans, initialize pagerank p}
+\REPEAT
+\STATE{For each node i, update its pagerank with its old value and its income node's pagerank.}
+\UNTIL{Convergence}
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Weakly connected components}
 In terms of the implementation of weakly connected components. We borrow the idea of HCC method from the "PEGASUS" paper.\cite{Kang09}
 The algorithm can be described as following:
 \begin{algorithm}
