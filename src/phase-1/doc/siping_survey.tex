@@ -3,11 +3,12 @@ The first paper was the "PEGASUS" paper by Kang
 \cite{Kang09}
 \begin{itemize*}
 \item {\em Main idea}: 
-		This paper proposes a parallel programming primitive GIM-V that captures the shared characteristics among many seemingly different graph mining algorithms. The key idea is that the computation of graph mining algorithms like Pagerank, RWR, diameter estimation and so on, are essentially iterations of a generalized matrix-vector multiplication. More specifically, this generalized matrix-vector computation step can be captured by three basic operators in GIM-V - combine2, combineAll and assign. Based on this abstraction, many graph mining algorithms can be effciently computed via GIM-V over hadoop. Further, the author addresses the problem of high computational overhead of the shuffling stage in map-reduce. To overcome the problem and thus enhance the scalability, the author introduces several techniques, namely blocking, edge-clustering, diagonal block iteration and node renumbering into the implementation of GIM-V.
+		This paper proposes a parallel programming primitive GIM-V that captures the shared characteristics among many seemingly different graph mining algorithms. The key idea is that the computation of graph mining algorithms like Pagerank, RWR, diameter estimation and so on, are essentially iterations of a generalized matrix-vector multiplication. More specifically, this generalized matrix-vector computation step can be captured by three basic operators in GIM-V - combine2, combineAll and assign. Based on this abstraction, many graph mining algorithms can be effciently computed via GIM-V over hadoop. Further, the author addresses the problem of high computational overhead of the shuffling stage in map-reduce. To overcome the problem and thus enhance the scalability, the author introduces several techniques, namely blocking, edge-clustering, diagonal block iteration and node renumbering into the implementation of GIM-V. Then the author conducts experiments showing that these optimization techniques siginificantly improves the scalability of the proposed method. 
 \item {\em Use for our project}:
       Although GIM-V is a hadoop-based implementation, it is still a good reference for us since matrix-vector multiplication is easy to implement under SQL.  We can also implement the operator primitives of GIM-V(combine2, combineAll and assign) using user-defined function in PostgreSQL.
 
-\item {\em Shortcomings}:
+\item {\em Shortcomings}: 
+	This paper only compares the performance of GIM-V with 	different optimization techniques, but lack the comparison with other graph mining models or methods.
       
 \end{itemize*}
 The second paper was "Patterns on the Connected Components of Terabyte-Scale Graphs" by Kang
