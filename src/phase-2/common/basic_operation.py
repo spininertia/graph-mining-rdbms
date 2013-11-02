@@ -1,5 +1,5 @@
 ###########################################
-# creation & destop
+# creation & destroy
 ###########################################
 def drop_if_exists(tbl_name, conn):
     """
@@ -18,8 +18,25 @@ def create_vector_or_matrix(tbl_name, conn):
     cur.execute("create table %s (row int, col int, value float)" % tbl_name)
     conn.commit()
 
-def initilizat_vector():
-    pass
+def initilizat_vector(tbl_name, dim, conn):
+    """
+    initialize a vector to zero
+    """
+    clear_table(tbl_name, conn)
+    cur = conn.cursor()
+    # this is slow, I know
+    for i in range(dim):
+        cur.execute("insert into %s values (%s, 0, 0.0)" % (tbl_name, i))
+    conn.commit()
+
+def assign_to(from_tbl, to_tbl, conn):
+    """
+    assign a vector/matrix to another variable(table)
+    """
+    clear_table(to_tbl, conn)
+    cur = conn.cursor()
+    cur.execute("insert into %s select * from %s" % (to_tbl, from_tbl))
+    conn.commit()
 
 
 ###########################################
@@ -33,17 +50,13 @@ def vector_length(tbl_name, conn):
     cur.execute("select sqrt(sum(power(value, 2))) from %s" % tbl_name)
     return cur.fetchone()[0]
 
-def matrix_col_length(tbl_name, col, row_low, row_high):
+def vector_dot_product(a, b, conn):
     """
-    select sum(val*val) from %s where col = %s and row >= %s and row <= %s
+    a .X b
     """
-    pass
-
-def matrix_row_length(tbl_name, row, col_low, col_high):
-    """
-    select sum(val*val) from %s where row = %s and col >= %s and col <= %s
-    """
-    pass
+    cur = conn.cursor()
+    cur.execute("select sum(A.value * B.value) from %s A, %s B where A.row = B.row" % (a, b))
+    return cur.fetchone()[0]
 
 ###########################################
 # write
@@ -57,7 +70,16 @@ def matrix_multiply_matrix_overwrite(a, b, result, conn):
     clear_table(result, conn);
     cur = conn.cursor()
     cur.execute("insert into %s select A.row, B.col, sum(A.value * B.value) from %s A, %s B where A.col = B.row group by A.row, B.col" % (result, a, b))
-    conn.commit()        
+    conn.commit()
+
+def matrix_multiply_vector_overwrite(a, b, c, conn):
+    """
+    a X b = c
+    """
+    clear_table(c, conn)
+    cur = conn.cursor()
+    cur.execute("insert into %s select A.row, 0, sum(A.value * B.value) from %s A, %s B where A.col = B.row group by A.row" % (c, a, b))
+    conn.commit()
 
 def matrix_multiply_matrix_ignore(a, b, result, conn):
     """

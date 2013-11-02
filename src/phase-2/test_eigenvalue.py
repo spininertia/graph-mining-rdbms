@@ -12,4 +12,4 @@ if __name__ == "__main__" :
     cur.execute("insert into %s values (0,0,0.3),(0,1,0.4),(1,0,0.5),(1,1,0.6)" % 'v')
     conn.commit()
     # do quodratic QR method
-    eigen_quodratic("v", 2, conn)
+    eigen_quodratic("v", 'q', 'r', 2, conn)
