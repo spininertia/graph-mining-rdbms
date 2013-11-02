@@ -66,25 +66,19 @@ def matrix_multiply_matrix_ignore(a, b, result, conn):
     pass
 
 
-def normalize_vector(tbl_name):
+def normalize_vector(tbl_name, conn):
     """
-    l = vector_length()
-    update %s set val = val/%s
+    normalized vector
     """
-    pass
+    l = vector_length(tbl_name, conn)
+    cur = conn.cursor()
+    cur.execute("update %s set value = value / %s" % (tbl_name, l))
+    conn.commit()
 
 def set_matrix(tbl_name, row, col, v):
     """
-    update %s set val = %s where row = %s and col = %s
+    update a cell in matrix
     """
-    pass
-
-def matrix_multiply_matrix_column(tbl1, tbl2, tbl3, col2):
-    """
-    select V.row, sum(V.val * B.val) from V, B where V.col = B.row and B.col = %s group by V.row
-    """
-
-def matrix_multiply_vector(tbl1, tbl2, tbl3):
-    pass
-
-
+    cur = conn.cursor()
+    cur.execute("update %s set value = %s where row = %s and col = %s" % (tbl_name, v, row, col))
+    conn.commit()
