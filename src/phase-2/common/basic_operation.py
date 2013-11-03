@@ -20,14 +20,53 @@ def create_vector_or_matrix(tbl_name, conn):
 
 def initilizat_vector(tbl_name, dim, conn):
     """
-    initialize a vector to zero
+    initilize a vector
     """
+    import random
     clear_table(tbl_name, conn)
     cur = conn.cursor()
     # this is slow, I know
     for i in range(dim):
-        cur.execute("insert into %s values (%s, 0, 0.0)" % (tbl_name, i))
+        cur.execute("insert into %s values (%s, 0, %s)" % (tbl_name, i, 0.0))
     conn.commit()
+
+def initilizat_square_matrix(tbl_name, dim, conn):
+    """
+    initilize a matrix
+    """
+    import random
+    clear_table(tbl_name, conn)
+    cur = conn.cursor()
+    # this is slow, I know
+    for i in range(dim):
+        for j in range(dim):
+            cur.execute("insert into %s values (%s, %s, %s)" % (tbl_name, i, j, 0.0))
+    conn.commit()    
+
+def random_vector(tbl_name, dim, conn):
+    """
+    randomly initilize a vector
+    """
+    import random
+    clear_table(tbl_name, conn)
+    cur = conn.cursor()
+    # this is slow, I know
+    for i in range(dim):
+        cur.execute("insert into %s values (%s, 0, %s)" % (tbl_name, i, random.uniform(0, 1)))
+    conn.commit()
+
+def random_square_matrix(tbl_name, dim, conn):
+    """
+    randomly initilize a matrix
+    """
+    import random
+    clear_table(tbl_name, conn)
+    cur = conn.cursor()
+    # this is slow, I know
+    for i in range(dim):
+        for j in range(dim):
+            cur.execute("insert into %s values (%s, %s, %s)" % (tbl_name, i, j, random.uniform(0, 1)))
+    conn.commit()    
 
 def assign_to(from_tbl, to_tbl, conn):
     """
@@ -78,6 +117,7 @@ def matrix_multiply_vector_overwrite(a, b, c, conn):
     """
     clear_table(c, conn)
     cur = conn.cursor()
+    cur.mogrify("insert into %s select A.row, 0, sum(A.value * B.value) from %s A, %s B where A.col = B.row group by A.row" % (c, a, b))    
     cur.execute("insert into %s select A.row, 0, sum(A.value * B.value) from %s A, %s B where A.col = B.row group by A.row" % (c, a, b))
     conn.commit()
 
@@ -97,7 +137,26 @@ def normalize_vector(tbl_name, conn):
     cur.execute("update %s set value = value / %s" % (tbl_name, l))
     conn.commit()
 
-def set_matrix(tbl_name, row, col, v):
+def normalize_column(tbl_name, col, conn):
+    """
+    normalize a column of a matrix
+    """
+    cur = conn.cursor()
+    cur.execute("select sqrt(sum(power(value, 2))) from %s where col = %s" % (tbl_name, col))
+    l = cur.fetchone()[0]
+    if l > 0:
+        cur.execute("update %s Q1 set value = value / %s where col = %s" % (tbl_name, l, col))
+    conn.commit()
+
+def devide_column(tbl_name, col, d, conn):
+    """
+    devide a column of a matrix by a constance
+    """
+    cur = conn.cursor()
+    cur.execute("update %s Q1 set value = value / %s where col = %s" % (tbl_name, d, ol))
+    conn.commit()    
+
+def set_matrix(tbl_name, row, col, v, conn):
     """
     update a cell in matrix
     """

@@ -1,3 +1,5 @@
+from common.basic_operation import *
+
 ## QR factorization of matrix
 def qr_decompose(v, q, r, dim, conn):
     """
@@ -17,8 +19,8 @@ def qr_decompose(v, q, r, dim, conn):
     conn.commit()
     for i in range(0, dim):
         cur.execute("insert into %s select %s, %s, sqrt(sum(power(value, 2))) from %s where col = %s" % (r, i, i, q, i))
-        cur.execute("update %s set value = value / (select value from %s where row = %s and col = %s) where col = %s" % (q, r, i, i, i))
         conn.commit()
+        normalize_column(q, i, conn)
 
         for j in range(i+1, dim):
             cur.execute("(select sum(Q1.value * Q2.value) from %s Q1, %s Q2 where Q1.row = Q2.row and Q1.col = %s and Q2.col = %s)" % (q, q, i, j))
