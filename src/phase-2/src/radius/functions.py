@@ -108,9 +108,9 @@ def create_msb(conn):
 	BEGIN
 		select length(bitStr) into len;
 		for i in 1..len LOOP
-			select get_bit(bitStr, len - i) into tmpBit;
-			if tmpBit = 1 then
-				return len - i; 
+			select get_bit(bitStr, i - 1) into tmpBit;
+			if tmpBit = 0 then
+				return i; 
 			end if;
 		end loop;
 	END;
