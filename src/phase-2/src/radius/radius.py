@@ -60,6 +60,7 @@ def radius(edge_table, conn):
 	conn.commit()
 
 	assign_fm(conn, vertex_table, edge_table)
+	record_hops(conn, hop_table, vertex_table, 0)
 
 	max_iteration = 256
 	for i in range(max_iteration):
