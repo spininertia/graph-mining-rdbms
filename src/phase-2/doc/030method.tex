@@ -5,6 +5,8 @@ The following are the algorithms we plan to implement. The reason we choose them
 \begin{description}
   \item[PageRank:] Determine the importance of every node of a graph based on its connectivity. 
   \item[Connected Components:] Partition the nodes of a graph also based on its connectivity.
+  \item[Radius of Every Node:] Compute the radius of every node in a graph. The radius is defined as the number of hops that a node needs to reach to its furthest neighbor.
+  \item[Belief Propogation:]
 \end{description}
 
 \subsection{Pagerank}
@@ -38,3 +40,62 @@ The algorithm can be described as following:
 
 After several rounds of iteration, the nodes in the same connected component will share the same component id.
 The number of iterations for convergence can be proved to be upper bounded by the diameter of the graph.
+
+\subsection{Radius of every node}
+We discard the traditional algorithm because it is extremely infeasible for large graphs, since it uses a set to record every neghbors within n hops for a node during iteration, which requires a O($n^2$) space.
+Since the exact algorithm is hopeless, we use the approximation algorithm described in "HADI" paper\cite{DBLP:journals/tkdd/KangTAFL11} instead. Specifically, we use the Flajolet-Martin algorithm for counting the number of distinct members in a multiset. It is guaranteed to give an unbiased estimate and a tight O($log(N)$) bound for space complexity. The basic idea of Floajolet-Martin algorthm is to use a bitstrings of length $L$ to encode the set. For each element to add, we randomly pick up a index according to a specified distribution, and assign BITMAP[index] to 1. Following this procedure to add element, the size of the final set can be estimated by $\frac{1}{\phi} 2^{\frac{1}{k}\sum_{i=1}^k R_i}$, where $\phi$ = 0.77351, $R_i$ denotes the index of the leftmost 0 in the the $k$th bitstring.
+
+In our proposed method for computing radius of every node, we use the Flajolet-Martin(FM) bitstrings to encode the neighbors of every node. Formally, we use $k$ FM-bitstrings $b(h, i)$ to represent the set of neighbor nodes reachable from $node_i$ within h hops. And for each iteration, we use the following way to update each FM-bitstring:$$b(h,i) = b(h-1,i)  \quad BIT-OR \quad  {b(h-1,j)|(i,j)\in E}$$
+
+Given the above description of how to encode neighbors of a node, and the method to update bitstrings, we can describe the approximation method we used to compute the raidus of every node in algorithm \ref{radius:algo3}.
+
+\begin{algorithm}
+\caption{Radius of Every Node}
+\begin{algorithmic}
+\STATE{Bulk load graph into an edge table in database.}
+\STATE{Preprocess the edge table, add a self loop edge to every node in the graph.}
+\STATE{Intialize the vertex table, which contains node id, and a column of bitstring array, the bitstrings are initialized using the FM algorithm}
+\REPEAT
+\STATE{For every node update the bitstring according to formula: $b(h,i) = b(h-1,i) \quad BIT-OR \quad  {b(h-1,j)|(i,j)\in E}$. }
+\STATE{For every node, check whether the bitstrings is unchanged before and after updates, if it's not changed, output i as the radius for this node.}
+\UNTIL{The bitstrings of every node stablizes or it reaches the maximum rounds of iteration.}
+\end{algorithmic}
+\label{radius:algo3}
+\end{algorithm}
+
+
+To make this algorithm possible in SQL, we defined some user defined functions:
+\begin{description}
+  \item[fmAssign:] Assign the k FM-bitstrings for a node.
+  \item[bitOr:] Execute the OR operations between two bitstring arrays.
+  \item[aggBitOr:] Aggregate function for bitOr.
+  \item[fmSize:] Estimate the size of a set encoded by FM-bitstring.
+\end{description}
+
+\subsection{Belief Propogation}
+For belief propagation, we use the fabp method proposed in paper\cite{DBLP:conf/pkdd/KoutraKKCPF11}.
+It can be shown that the solution of belief propagation can be approximated by the linear system:$$[\mathbf{I}	 + a\mathbf{D} - c\mathbf{A}]\mathbf{b_h} = \mathbf{\phi_h}$$ 
+where $\mathbf{A}$ is the n by n symmetric adjacency matrix, $\mathbf{D}$ is the diagonal matrix of degrees, $b_h$ corresponds to the vector of final beliefs for each node, $\phi_h$ is prior belief vector, and $h_h$ is the homophily factor,  $a = 4h_h^2/(1 - h_h^2)$ and $c = 2h_h / (1-4h_h^2)$.
+
+To solve this linear system, we can see :$\mathbf{I} + a\mathbf{D} - c\mathbf{A}$ as the form $\mathbf{I} - \mathbf{W}$, where $\mathbf{W} = -a\mathbf{D} + c\mathbf{A}$, and using the expansion:$$(\mathbf{I} - \mathbf{W})^{-1} = \mathbf{I} + \mathbf{W} + \mathbf{W}^2 + \mathbf{W}^3 + ...$$
+
+and the solution of the linear system is given by the formula:
+$$\mathbf{b_h} = (\mathbf{I} - \mathbf{W}^{-1})\mathbf{\phi_h} =\mathbf{\phi_h}  + \mathbf{\phi_h} \mathbf{W} + \mathbf{\phi_h} \mathbf{W}^2 + \mathbf{\phi_h} \mathbf{W}^3 + ...$$
+
+Given this power method, the implementation is pretty straightforward as described in algorithm \ref{bp:algo4}.
+\begin{algorithm}
+\caption{Belief Propogation}
+\begin{algorithmic}
+\STATE{Bulk load graph into an edge table in database.}
+\STATE{Initialize $h_h = 0.001 $}
+\STATE{Initialize the initial belief of every node as prior belief}
+\REPEAT
+\STATE{Update the belief of node by $b_h(i) = b_h(i-1)\mathbf{W} + \mathbf{\phi_h}$ }
+\UNTIL{Convergence}
+\end{algorithmic}
+\label{bp:algo4}
+\end{algorithm}
+
+
+
+
