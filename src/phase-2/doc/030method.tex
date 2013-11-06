@@ -37,7 +37,6 @@ The algorithm can be described as following:
 \UNTIL{Convergence}
 \end{algorithmic}
 \end{algorithm}
-
 After several rounds of iteration, the nodes in the same connected component will share the same component id.
 The number of iterations for convergence can be proved to be upper bounded by the diameter of the graph.
 
@@ -96,6 +95,70 @@ Given this power method, the implementation is pretty straightforward as describ
 \label{bp:algo4}
 \end{algorithm}
 
+\subsection{Eigenvalue/SVD}
+We adopt the method propose in \cite{kang2011spectral}. There are several methods to solve part of eigenvalue computation problems, for instance, power method\cite{langville2004deeper}. While it has the limitation that it can only extract the eigenvector with biggest eigenvalue. Several method have been proposed to extract top k eigenvectors simultaneously. The approach we use is Lanczos algorithm\cite{lanczos1950iteration}. The general idea about this algorithm is that instead of directly work on an $N \times N$ matrix, we first generate a skinny $N \times m$ matrix(M $\ll$ N). Then it computes a small $M \times M$ dense matrix which has good approximation to the eigenvalues of the original matrix. In this case, we directly apply quadratic algorithm to top-k eigenvalues. Notice that k $<$ M.
 
+{\bf{Algorithm detail:}} Different from power method, the intermediate multiplication matrix is used to construct a set of orthonormal base of \emph{Krylv subspace $K_{m}$} which follows the definition:
+\begin{equation}
+K_{m} = < b, Ab, \cdots, A^{m-1}b>.
+\end{equation}
+The sub procedure to construct orthonormal bases may be any standard algorithm, for example Gram-schmidt algorithm. We can view Lanczos algorithm as an iterative method which incrementally construct Krylov subspace. The pseudo-code is shown in Algorithm \ref{eigen:algo1}.
 
+After Lanczos factorization, we get a few matrices that satisfy the following equation:
+\begin{equation}
+	AV_{m} = V_{m}T_{m} + f_{m}e^{T}_{m}
+\end{equation}
+To name a few, $A^{n\times m}$ is input matrix, $V^{n\times m}_{m}$ contains the m orthonormal bases, $T^{m\times m}_{m}$ is a tridiagonal matrix, $f_{m}$ is new n-vector orthogonal to all columns of $V_{m}$, $
+e_{m}$ is a vector that \emph{m}th element is 1, and others 0. After algorithm \ref{eigen:algo1}, we need to construct the matrix $T^{m\times m}_{m}$. The algorithm is quite simple, it is listed in algorithm \ref{eigen:algo2}. 
 
+The eigenvalues of $T_{m}$ are called Ritz values, and $V_{m}Y$'s columns are called Ritz vector. It is constructed by Algorithm \ref{eigen:algo3}. We expect the Ritz values and Ritz vectors to be good approximation of the eigenvalues and eigenvectors of original matrix. The computation of eigenvalues of $T_{m}$ can be done by standard quadratic algorithms, such as QR method. 
+
+\begin{algorithm}
+{\bf Input:} Matrix $A^{n \times m}$\\
+random n-vector $b$,\\
+number of steps m\\
+{\bf output:} Orthogonal matrix $ V^{v \times m}_{m} = [v_{1}\cdots v{m}]$,\\
+coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
+\begin{algorithmic}[1]
+\caption{Lanczos algorithm}
+\STATE $\beta_{0} \leftarrow 0, v_{0} \leftarrow 0, v_{1} \leftarrow \frac{b}{\parallel b \parallel}$ 
+\FOR {$i=1$ to $m$}
+	\STATE $v \leftarrow Av_{i}$
+	\STATE $\alpha_{i} \leftarrow v^{T}_{i}v $
+	\STATE $v \leftarrow v - \beta_{i-1}v_{i-1} - \alpha_{i}v_{i}$
+	\STATE $\beta_{i} \leftarrow \parallel v\parallel $
+	\IF {$\beta_{i} = 0$} 
+	\STATE break for loop 
+	\ENDIF
+	\STATE $ v_{v+1} \leftarrow \frac{v}{\beta_{i}} $
+\ENDFOR
+\end{algorithmic}
+\label{eigen:algo1}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Build tridiagonal matrix}
+{\bf Input:} $\alpha, \beta$
+{\bf Output:} $T^{m\times m}_{m}$
+\begin{algorithmic}[1]
+\FOR {$i=1$ to m}
+	\STATE $T[i, i] \leftarrow \alpha_{i} $
+	\STATE $T[i, i+1] = T[i+1, i] \leftarrow \beta_{i}$
+\ENDFOR	
+\end{algorithmic}
+\label{eigen:algo2}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Compute Ritz values}
+{\bf Input:}Orthogonal matrix $V^{n\times m}_{m}$\\
+coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
+\begin{algorithmic}[1]
+\STATE $T_{m} \leftarrow$ (build a tridiagonal matrix from $\alpha$ and $\beta$)
+\STATE $QDQ^{T} \leftarrow EIG(T_{m})$
+\STATE $\lambda_{1..k} \leftarrow$ (top k eigenvalues from D)
+\STATE $Q_{k} \leftarrow $ (k columns of Q corresponding to $\lambda_{1..k})$
+\STATE $R_{k} \leftarrow V_{m}Q_{k}$
+\end{algorithmic}
+\label{eigen:algo3}
+\end{algorithm}
