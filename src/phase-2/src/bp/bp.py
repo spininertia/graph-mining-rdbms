@@ -115,8 +115,8 @@ def bp(conn, edge_table):
 		cur.execute("delete from %s" % W_new)
 		matrix_vector_multiply(conn, W, belief, belief_new)
 		vector_add(conn, belief_new, prior)
-		#if(is_stablized(conn, belief, belief_new)):
-		#	break
+		if(is_stablized(conn, belief, belief_new)):
+			break
 		cur.execute("delete from %s" % belief)
 		cur.execute("insert into %s select * from %s" % (belief, belief_new))
 
