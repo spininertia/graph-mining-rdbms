@@ -72,9 +72,10 @@ def build_tridiagonal_matrix(alpha, beta, m, t, conn):
             if j == i:
                 # print cur.mogrify("insert into %s select %s, %s, value from %s where row = %s" % (t, i-1, i-1, alpha, i)) # T[i, i] <- alpha_i        
                 cur.execute("insert into %s select %s, %s, value from %s where row = %s" % (t, i-1, i-1, alpha, i)) # T[i, i] <- alpha_i        
-            elif j == i - 1 or j == i + 1:
-                # print cur.mogrify("insert into %s select %s, %s, value from %s where row = %s" % (t, i-1, j-1, beta, i))
+            elif j == i + 1:
                 cur.execute("insert into %s select %s, %s, value from %s where row = %s" % (t, i-1, j-1, beta, i))        
+            elif i - 1 >= 1 and j == i - 1:
+                cur.execute("insert into %s select %s, %s, value from %s where row = %s" % (t, i-1, i-2, beta, i-1))        
             else:
                 # print cur.mogrify("insert into %s values (%s, %s, 0.0)" % (t, i-1, j-1))
                 cur.execute("insert into %s values (%s, %s, 0.0)" % (t, i-1, j-1))

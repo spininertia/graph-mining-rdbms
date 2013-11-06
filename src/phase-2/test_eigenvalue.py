@@ -20,18 +20,22 @@ def test_qeigen_quodratic(conn):
 def test_lanczos(conn):
     b = 'b'
     v = 'v'    
-    dim = 3
     create_vector_or_matrix(v, conn)
     clear_table("v", conn)
     # random_square_matrix(v, dim, conn);
     cur = conn.cursor()    
-    cur.execute("insert into %s values (0,0,0.5),(0,1,0.2),(0,2,0.3),(1,0,0.1),(1,1,0.7),(1,2,0.3),(2,0,0.1),(2,1,0.2),(2,2,0.5)" % v)
+    f = open("matrix_data.txt")
+    data = [line.strip().split(" ") for line in f]
+    for i in range(len(data)):
+        for j in range(len(data)):
+            cur.execute("insert into %s values (%s, %s, %s)" % (v, i, j, data[i][j]))
+    dim = len(data)
     create_vector_or_matrix(b, conn)
-    # random_vector(b, dim, conn)
-    cur.execute("insert into %s values (0,0,0.1),(1,0,0.2),(2,0,0.4)" % b)    
+    for i in range(dim):
+        cur.execute("insert into %s values (%s, %s, %s)" % (b, i, 0, 1.0 / float(dim)))
     lanczos(v, b, dim, dim, conn)    
 
 if __name__ == "__main__" :
     conn = psycopg2.connect(database="mydb", host="127.0.0.1")
-    # test_lanczos(conn)
-    test_qeigen_quodratic(conn)
+    test_lanczos(conn)
+    # test_qeigen_quodratic(conn)
