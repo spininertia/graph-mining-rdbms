@@ -1,0 +1,40 @@
+We implement all the graph mining algorithms using Postgres's embedded PL/pgSQL programming language, which supports many advanced features, like user defined function, aggregate, etc. It also has a sophisticated query execution engine, which we think is the most critical component of Postgres.
+
+The following are the algorithms we plan to implement. The reason we choose them is that there are a lot of implementation in other platform like MapReduce, we can compare our SQL version with them to draw a clusion about SQL's unique charastic in solving data analytic tasks.
+
+\begin{description}
+  \item[PageRank:] Determine the importance of every node of a graph based on its connectivity. 
+  \item[Connected Components:] Partition the nodes of a graph also based on its connectivity.
+\end{description}
+
+\subsection{Pagerank}
+The algorithm of pagerank is Power method. We do matrix multiplication continusly until the change in pagerank is small. 
+\begin{algorithm}
+\caption{Pagerank}
+\begin{algorithmic}
+\STATE{Bulk load graph into an edge table in database.}
+\STATE{Initialization(damper factor=0.85, max iteration = 100, epsilon = 0.0001)}
+\STATE{Build a weight matrix trans, initialize pagerank p}
+\REPEAT
+\STATE{For each node i, update its pagerank with its old value and its income node's pagerank.}
+\UNTIL{Convergence}
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Weakly connected components}
+In terms of the implementation of weakly connected components. We borrow the idea of HCC method from the "PEGASUS" paper.\cite{Kang09}
+The algorithm can be described as following:
+\begin{algorithm}
+\caption{Weakly Connected Component}
+\begin{algorithmic}
+\STATE{Bulk load graph into an edge table in database.}
+\STATE{Create a component table, where each entry contains a node id, and the component id.}
+\STATE{Initialize the component table where component id equls node id.}
+\REPEAT
+\STATE{For each node, assign the minimum component id of its neighbors as the new componnet id of this node.}
+\UNTIL{Convergence}
+\end{algorithmic}
+\end{algorithm}
+
+After several rounds of iteration, the nodes in the same connected component will share the same component id.
+The number of iterations for convergence can be proved to be upper bounded by the diameter of the graph.
