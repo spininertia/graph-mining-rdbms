@@ -1,7 +1,7 @@
 def assign_fm(conn, tbl_name, edge_table):
 	cur = conn.cursor()
 	cur.execute("delete from %s" % tbl_name)
-	cur.execute("insert into %s select src_id, fm_assign(2) from %s group by src_id" % (tbl_name, edge_table))
+	cur.execute("insert into %s select src_id, fm_assign(32) from %s group by src_id" % (tbl_name, edge_table))
 	conn.commit()
 
 	cur.close()
