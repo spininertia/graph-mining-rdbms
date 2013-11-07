@@ -6,7 +6,7 @@ The following are the algorithms we plan to implement. The reason we choose them
   \item[PageRank:] Determine the importance of every node of a graph based on its connectivity. 
   \item[Connected Components:] Partition the nodes of a graph also based on its connectivity.
   \item[Radius of Every Node:] Compute the radius of every node in a graph. The radius is defined as the number of hops that a node needs to reach to its furthest neighbor.
-  \item[Belief Propogation:]
+  \item[Belief Propagation:]
 \end{description}
 
 \subsection{Pagerank}
@@ -71,7 +71,7 @@ To make this algorithm possible in SQL, we defined some user defined functions:
   \item[fmSize:] Estimate the size of a set encoded by FM-bitstring.
 \end{description}
 
-\subsection{Belief Propogation}
+\subsection{Belief Propagation}
 For belief propagation, we use the fabp method proposed in paper\cite{DBLP:conf/pkdd/KoutraKKCPF11}.
 It can be shown that the solution of belief propagation can be approximated by the linear system:$$[\mathbf{I}	 + a\mathbf{D} - c\mathbf{A}]\mathbf{b_h} = \mathbf{\phi_h}$$ 
 where $\mathbf{A}$ is the n by n symmetric adjacency matrix, $\mathbf{D}$ is the diagonal matrix of degrees, $b_h$ corresponds to the vector of final beliefs for each node, $\phi_h$ is prior belief vector, and $h_h$ is the homophily factor,  $a = 4h_h^2/(1 - h_h^2)$ and $c = 2h_h / (1-4h_h^2)$.
@@ -83,7 +83,7 @@ $$\mathbf{b_h} = (\mathbf{I} - \mathbf{W}^{-1})\mathbf{\phi_h} =\mathbf{\phi_h} 
 
 Given this power method, the implementation is pretty straightforward as described in algorithm \ref{bp:algo4}.
 \begin{algorithm}
-\caption{Belief Propogation}
+\caption{Belief Propagation}
 \begin{algorithmic}
 \STATE{Bulk load graph into an edge table in database.}
 \STATE{Initialize $h_h = 0.001 $}
@@ -162,3 +162,4 @@ coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
 \end{algorithmic}
 \label{eigen:algo3}
 \end{algorithm}
+
