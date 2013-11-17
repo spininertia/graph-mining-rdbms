@@ -1,0 +1,27 @@
+% {\em
+% \bit
+% \item
+% what is the problem
+% \item
+% what are the applications
+% \eit
+% }
+
+The problem we want to solve is the following:
+\bit
+\item GIVEN: a graph stored as edge list in RDBMS
+\item FIND: hidden patterns in this graph using various graph mining algorithms implemented by SQL language
+\item to MINIMIZE: the computational cost.
+\eit
+
+With the growth of computer network, graphs are ubiquitous nowadays, social networks, papers citing network, world wide web to a few. On the other hand, with the drastic drop of storage cost and the emergence of large social network companies like Facebook and Linkedin, graphs are now of a unprecedented size with billions of vertexes and edges. Mining such large dataset may help us gain lots of useful information and leads to interesting applications anomaly detection, social network analysis and so on. There are also lots of famous graph mining algorithms like PageRank, Random Walk with Restart, Belief Propagation who are aiming to find interesting patterns in graphs. However, most of these algorithms assume the graph fit in memory, which is apparently no longer suitable for the giant graphs today.
+
+In this paper, we focus on how to use SQL language to implement efficient graph mining algorithms to find interesting patterns in large graphs that are stored in relational databases. We want to justify that RDBMS, equipped with highly optimized query engine and in-memory index, is sufficient for us to develop efficient and scalable graph mining algorithms in order to deal with graphs in this big data era.  
+
+% The contributions of this project are the following:
+% \bit
+% \item our proposed {\em someMETHOD} is novel, combining wavelets
+%       with a spike-removal  preprocessing step
+% \item it is effective, achieving 90\% classification accuracy
+% \item it is scalable, being linear on the number of sound-clips $N$.
+% \eit
