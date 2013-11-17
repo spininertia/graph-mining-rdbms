@@ -35,7 +35,7 @@ def drop_if_exists(conn, table_name):
 	conn.commit()
 	cur.close()
 
-def radius(edge_table, conn):
+def radius(conn, edge_table, dataset):
 	"""
 	edge_table: edge table
 	"""
@@ -43,7 +43,7 @@ def radius(edge_table, conn):
 	tmp_table = "tmp_v"
 	hop_table = "hops"
 	tmp_edge = "tmp_edge"
-	radius_table = "radius_table"
+	radius_table = dataset + "radius"
 	cur = conn.cursor()
 	drop_if_exists(conn, tmp_table)
 	drop_if_exists(conn, vertex_table)
