@@ -1,3 +1,6 @@
+import psycopg2
+import sys
+
 def matrix_vector_multiply(conn, m1, m2, result):
 	cur = conn.cursor()
 	cur.execute("delete from %s" % result)
@@ -84,7 +87,7 @@ def create_rnd_init(conn):
 	conn.commit()
 
 
-def bp(conn, edge_table):
+def bp(conn, edge_table, target_table):
 	create_rnd_init(conn);
 	cur = conn.cursor()
 	h = 0.002
@@ -93,7 +96,7 @@ def bp(conn, edge_table):
 	W = "W"
 	W_new = "W_new"
 	prior = "prior"
-	belief = "belief"
+	belief = target_table
 	belief_new = "belief_new"
 	degree_table = "degree_table"
 	out_degree(conn, edge_table, degree_table)
@@ -119,5 +122,12 @@ def bp(conn, edge_table):
 			break
 		cur.execute("delete from %s" % belief)
 		cur.execute("insert into %s select * from %s" % (belief, belief_new))
+        conn.commit()
+        cur.close()
+
+if __name__ == "__main__":
+    conn = psycopg2.connect(database="mydb", host="127.0.0.1")
+    bp(conn, sys.argv[1], sys.argv[2])
+    conn.close()
 
 
