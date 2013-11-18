@@ -24,7 +24,7 @@ def test_lanczos(conn):
     clear_table("v", conn)
     # random_square_matrix(v, dim, conn);
     cur = conn.cursor()    
-    f = open("matrix_data.txt")
+    f = open("data/matrix_data.txt")
     data = [line.strip().split(" ") for line in f]
     for i in range(len(data)):
         for j in range(len(data)):
