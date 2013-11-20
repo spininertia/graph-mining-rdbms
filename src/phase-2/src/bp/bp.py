@@ -103,7 +103,7 @@ def bp(conn, edge_table):
 	create_vector(conn, belief_new)
 	create_vector(conn, prior)
 	rand_init_matrix(conn, prior, edge_table)
-	cur.execute("insert into %s select src_id, dst_id, %f * weight from %s" % (W, c, edge_table))
+	cur.execute("insert into %s select src_id, dst_id, %f from %s" % (W, c, edge_table))
 	conn.commit()
 
 	cur.execute("insert into %s select id, id, -%f * degree + 1 from %s" % (W, a, degree_table))

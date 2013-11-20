@@ -35,7 +35,23 @@ def drop_if_exists(conn, table_name):
 	conn.commit()
 	cur.close()
 
-def radius(edge_table, conn):
+def time_it(fn):
+	def wrap(*args):
+		import time
+		start = time.time()
+		fn(*args)
+		used = time.time() - start
+		print "used %s" % used
+	return wrap
+
+
+def summarize(conn, radius_table, dataset):
+	cur = conn.cursor()
+	drop_if_exists("tmp")
+	cur.execute("select radius, count(*) into tmp from %s" % radius_table)
+	cur.copy_to(tmp, 'radius_' + dataset + ".csv", sep = ',')
+
+def radius(conn, edge_table, dataset):
 	"""
 	edge_table: edge table
 	"""
@@ -43,16 +59,21 @@ def radius(edge_table, conn):
 	tmp_table = "tmp_v"
 	hop_table = "hops"
 	tmp_edge = "tmp_edge"
-	radius_table = "radius_table"
+	radius_table = "radius_" + dataset
 	cur = conn.cursor()
 	drop_if_exists(conn, tmp_table)
 	drop_if_exists(conn, vertex_table)
 	drop_if_exists(conn, hop_table)
 	drop_if_exists(conn, tmp_edge)
 	drop_if_exists(conn, radius_table)
-	cur.execute("select * into %s from %s" % (tmp_edge, edge_table))
-	cur.execute("insert into %s select src_id, src_id, 1.0 from %s group by src_id" % (tmp_edge, edge_table))
+	cur.execute("create table %s(src_id int, dst_id int)" % tmp_edge)
+	cur.execute("insert into %s select src_id, dst_id from %s" % (tmp_edge, edge_table))
+	cur.execute("insert into %s select src_id, src_id from %s group by src_id" % (tmp_edge, edge_table))
+	cur.execute("insert into %s select dst_id, dst_id from %s where dst_id not in (select distinct src_id from %s) group by dst_id" % (tmp_edge, edge_table, edge_table))
 	edge_table = tmp_edge
+	#cur.execute("drop index if exists radius_index ")
+	#cur.execute("create index radius_index on %s (src_id) " % edge_table)
+
 	cur.execute("create table %s(id int, fm bit(32)[])" % vertex_table)
 	cur.execute("create table %s(id int, fm bit(32)[])" % tmp_table)
 	cur.execute("create table %s(id int, hop int, size float)" % hop_table)
@@ -79,6 +100,7 @@ def radius(edge_table, conn):
 		where %(hop)s.id = foo.id and %(hop)s.size = foo.max_size
 		group by %(hop)s.id;		
 		""" % {'rad':radius_table, 'hop':hop_table})
+        summarize(conn, radius_table, dataset)
 	conn.commit()
 	cur.close()
 	conn.close()
