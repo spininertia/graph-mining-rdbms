@@ -47,9 +47,10 @@ def time_it(fn):
 
 def summarize(conn, radius_table, dataset):
 	cur = conn.cursor()
-	drop_if_exists("tmp")
-	cur.execute("select radius, count(*) into tmp from %s" % radius_table)
-	cur.copy_to(tmp, 'radius_' + dataset + ".csv", sep = ',')
+	drop_if_exists(conn, "tmp")
+	cur.execute("select radius, count(*) into tmp from %s group by radius order by radius" % radius_table)
+	f = open('radius_' + dataset + ".csv", 'w')
+	cur.copy_to(f, "tmp", sep = ',')
 
 def radius(conn, edge_table, dataset):
 	"""
