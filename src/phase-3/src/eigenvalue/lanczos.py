@@ -54,6 +54,15 @@ def lanczos(A, b, n, m, conn):
     # copy v into a matrix, they are still separate vector now
     # seems like V is useless, so I would not bother transform it.
     ritz_vector(alpha, beta, m, conn)
+    drop_if_exists('alpha', conn)
+    drop_if_exists('beta', conn)
+    drop_if_exists('b', conn)
+    drop_if_exists('t', conn)
+    drop_if_exists('v', conn)
+    drop_if_exists('v_tmp', conn)    
+    for vvv in v:
+        drop_if_exists(vvv, conn)
+
 
 def ritz_vector(alpha, beta, m, conn):
     """
