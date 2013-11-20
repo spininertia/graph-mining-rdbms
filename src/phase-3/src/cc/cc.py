@@ -11,7 +11,7 @@ def cc_init(conn, edge_table, target_table):
 	cur = conn.cursor()
 	drop_if_exists(conn, "component")
 	drop_if_exists(conn, "component_tmp")
-	drop_if_exists(conn, "target_table")
+	drop_if_exists(conn, target_table)
 	cur.execute("drop index if exists c_index")
 	cur.execute("drop index if exists ct_index")
 	cur.execute("create table component (nid int not null unique, cid int)")
@@ -87,6 +87,16 @@ def cc_assign(conn):
 		""")
 	conn.commit()
 
+def summarize(conn, target_table):
+	cur = conn.cursor()
+	cur.execute("select count(distinct cid) from %s" % target_table)
+	num_cc = cur.fetchone()[0]
+	cur.execute("select max(cnt) from (select count(*) as cnt from %s group by cid) as foo" % target_table)
+	max_cc = cur.fetchone()[0]
+	print "number of connected components:%d" % num_cc
+	print "largest connected components:%d vertices" % max_cc 
+	cur.close()
+
 def compute_cc(conn, edge_table, target_table):
 	cc_init(conn, edge_table, target_table)
 	update(conn, edge_table)
@@ -99,7 +109,9 @@ def compute_cc(conn, edge_table, target_table):
 		diff = count_diff(conn)
 		iter = iter + 1
 	save_result(conn, target_table)
+	summarize(conn, target_table)
 
+	
 if __name__ == "__main__":
 	conn = psycopg2.connect(database="mydb", host="127.0.0.1")
 	compute_cc(conn, sys.argv[1], "cc_" + sys.argv[2])
