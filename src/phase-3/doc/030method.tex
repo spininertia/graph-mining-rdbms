@@ -164,3 +164,24 @@ coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
 \label{eigen:algo3}
 \end{algorithm}
 
+\subsection{Minimum Spanning Tree}
+We use the classical Prim's algorithm for this additional task. We abandon the Kruskal's algorithm because the disjoint set is not easy to implement using SQL. The implementation can be described in algorithm \ref{prim:algo}.
+
+\begin{algorithm}
+{\bf Input:} Edge Table E of a undirected connected graph \\
+{\bf output:}  Edge Table MST containing edges of the minimum spanning tree
+\begin{algorithmic}
+\caption{Prim's algorithm}
+\STATE Create a node table N$ 
+\STATE Randomly insert a node into N
+\FOR {$i=1$ to $number of nodes - 1$}
+	\STATE Insert into MST an edge from E with minimum weight where src node is in N and destination node is not in N
+	\STATE Insert into N with the destination node of the edge selected in last step
+\ENDFOR
+\end{algorithmic}
+\label{prim:algo}
+\end{algorithm}
+
+
+
+
