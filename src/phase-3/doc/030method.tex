@@ -169,10 +169,10 @@ We use the classical Prim's algorithm for this additional task. We abandon the K
 
 \begin{algorithm}
 {\bf Input:} Edge Table E of a undirected connected graph \\
-{\bf output:}  Edge Table MST containing edges of the minimum spanning tree
+{\bf output:} Edge Table MST containing edges of the minimum spanning tree
 \begin{algorithmic}
 \caption{Prim's algorithm}
-\STATE Create a node table N$ 
+\STATE Create a node table N
 \STATE Randomly insert a node into N
 \FOR {$i=1$ to $number of nodes - 1$}
 	\STATE Insert into MST an edge from E with minimum weight where src node is in N and destination node is not in N
