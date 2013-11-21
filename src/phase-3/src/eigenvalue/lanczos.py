@@ -30,12 +30,6 @@ def lanczos(A, b, n, m, conn):
         set_matrix(alpha, i, 0, alpha_i, conn)
 
         cur = conn.cursor()
-        s = cur.mogrify("""
-            update %s set value = 
-            value - (select value from %s where row = %s) * (select value from %s where row = %s.row) 
-                  - (select value from %s where row = %s) * (select value from %s where row = %s.row)""" % \
-                  (v_tmp, beta, i-1, v[i-1], v_tmp, alpha, i, v[i], v_tmp))
-        print s
         cur.execute("""
             update %s set value = 
             value - (select value from %s where row = %s) * (select value from %s where row = %s.row) 
@@ -43,7 +37,6 @@ def lanczos(A, b, n, m, conn):
                   (v_tmp, beta, i-1, v[i-1], v_tmp, alpha, i, v[i], v_tmp))
 
         vl = vector_length(v_tmp, conn) # |v|
-        print "-> %s\n" % (vl)
         set_matrix(beta, i, 0, vl, conn) # beta_i = |v|
         if (vl == 0):
             break
