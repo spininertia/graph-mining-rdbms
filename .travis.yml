@@ -6,3 +6,5 @@ install:
 script:
     - cd src/
     - python dummy_test.py
+    - cd ../src/phase-3/doc
+    - make
