@@ -15,8 +15,8 @@ def count_triangle(tbl_name, conn):
     p = cur.fetchone()
     dim = max(p) + 1
     appro = min(dim, 10);
-    for i in range(appro):
-        cur.execute("insert into %s values (%s, %s, %s)" % (b, i, 0, 1.0 / float(appro)))
+    for i in range(dim):
+        cur.execute("insert into %s values (%s, %s, %s)" % (b, i, 0, 1.0 / float(dim)))
     print "dimension is %s" % dim
     lanczos(tn, b, dim, appro, conn)
     cur.execute("select sum(p) from (select power(value,3.0) as p from eigenval where row = col order by value desc limit %s) as d" % appro)

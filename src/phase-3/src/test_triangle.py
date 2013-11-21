@@ -7,12 +7,10 @@ def test_dummy(conn):
     v = 'v'     
     cur = conn.cursor()    
     cur.execute("drop table if exists %s" % v)
-    cur.execute("create table %s(from_id int, to_id int, value real)" % (v))
-    f = open("data/matrix_data.txt")
-    data = [line.strip().split(" ") for line in f]
-    for i in range(len(data)):
-        for j in range(len(data)):
-            cur.execute("insert into %s values (%s, %s, %s)" % (v, i, j, data[i][j]))
+    cur.execute("create table %s(from_id int, to_id int, value real DEFAULT 1)" % (v))
+    f = open("data/p2p-Gnutella08.txt")
+    cur.copy_from(f, v, columns=('from_id', 'to_id'))
+    print "data loaded"
     count_triangle(v, conn)
 
 if __name__ == "__main__" :
