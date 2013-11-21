@@ -3,12 +3,32 @@ We implement all the graph mining algorithms using Postgres's embedded PL/pgSQL 
 The following are the algorithms we plan to implement. The reason we choose them is that there are a lot of implementation in other platform like MapReduce, we can compare our SQL version with them to draw a clusion about SQL's unique charastic in solving data analytic tasks.
 
 \begin{description}
+  \item[Degree Distribution:] Plot the distribution of each node's degree. 
   \item[PageRank:] Determine the importance of every node of a graph based on its connectivity. 
   \item[Connected Components:] Partition the nodes of a graph also based on its connectivity.
   \item[Radius of Every Node:] Compute the radius of every node in a graph. The radius is defined as the number of hops that a node needs to reach to its furthest neighbor.
   \item[Belief Propagation:] Calculate the marginal probability of each node in a graphical model. 
   \item[Eigenvalue:] Using approximation method to estimate the top-k eigenvalues of a matrix.
 \end{description}
+
+\subsection{Degree Distribution}
+We employ Postgres's group by command according to either source node or target node to count the degree distribution according to each node. 
+
+\begin{algorithm}
+\caption{Out Degree distribution}
+\begin{algorithmic}
+\STATE{Group edges according to source node's id}
+\STATE{Count the number of members of each group}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{In Degree distribution}
+\begin{algorithmic}
+\STATE{Group edges according to target node's id}
+\STATE{Count the number of members of each group}
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Pagerank}
 The algorithm of pagerank is Power method. We do matrix multiplication continusly until the change in pagerank is small. 
@@ -162,6 +182,24 @@ coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
 \STATE $R_{k} \leftarrow V_{m}Q_{k}$
 \end{algorithmic}
 \label{eigen:algo3}
+\end{algorithm}
+
+\subsection{Count of Triangle}
+We use a simple technique proposed by \cite{tsourakakis2008fast}, its general idea is build upon a theorem that the count of triangles in a graph is approximatly estimated by the sum of cubes of eigenvalues of the graph. 
+
+Paste equation here. 
+
+\subsection{Shortest Path}
+We adopt Dijkstra's shortest algorithm to compute shortest path from the source node. It works for directed weighted
+graph which has $O(V log V)$ time complexity. 
+
+\begin{algorithm}
+{\bf Input:} Source node and directed weighted graph. 
+{\bf Output:} Shortest path of every node from source node. 
+\begin{algorithmic}
+\caption{Dijkstra shortest path algorithm}
+\STATE  FILL Algorithm code here.
+\end{algorithmic}
 \end{algorithm}
 
 \subsection{Minimum Spanning Tree}
