@@ -8,3 +8,4 @@ before_script:
 script:
     - cd src/phase-3/src
     - nosetests -sv test_shortest_path.py
+    - nosetests -sv test_degree_distribution.py
