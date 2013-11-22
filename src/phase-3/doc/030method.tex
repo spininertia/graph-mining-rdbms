@@ -188,21 +188,58 @@ coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
 \end{algorithm}
 
 \subsection{Count of Triangle}
-We use a simple technique proposed by \cite{tsourakakis2008fast}, its general idea is build upon a theorem that the count of triangles in a graph is approximatly estimated by the sum of cubes of eigenvalues of the graph. 
+We use a simple technique proposed by \cite{tsourakakis2008fast}, its general idea is build upon a theorem that the count of triangles in a graph is proportional to the sum of cubes of eigenvalues of the graph. 
 
-Paste equation here. 
+The algorithm to calculate global triangles is as follows:
+
+\begin{algorithm}
+\caption{The EigenTriangle algorithm}
+{\bf Require: } Adjecency matrix A (n X n)\\
+{\bf Require: } Tolerence \emph{tol}\\
+{\bf Output: } $\bigtriangleup'(G)$ global triangle estimation
+\begin{algorithmic}
+\STATE{$\lambda_{i} \leftarrow LanczosMethod(A, 1)$}
+\STATE{$\overrightarrow{\Lambda} \gets [\lambda_{1}]$}
+\STATE{$i \gets 2 \{ $ {initialize i, $\overrightarrow{\Lambda}$} \} }
+\REPEAT 
+    \STATE{$\lambda_{i} \leftarrow LanczosMethod(A, i)$}
+    \STATE{$\overrightarrow{\Lambda} \gets [\overrightarrow{\Lambda} \lambda_{i}]$}
+    \STATE{$i \gets i + 1$}
+\UNTIL{0 $\leq$ $\frac{|\lambda_{i}^3|}{\sum_{j=1}^{i} |\lambda_{i}|^3} \leq$ tol}
+\STATE{$\bigtriangleup'(G) \gets \frac{1}{6} \sum_{j = 1}^{i} \lambda_{i}^3$}
+\RETURN{$\bigtriangleup'(G)$}
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Shortest Path}
 We adopt Dijkstra's shortest algorithm to compute shortest path from the source node. It works for directed weighted
-graph which has $O(V log V)$ time complexity. 
+graph which has $O(|V| log |V| + |E|)$ time complexity. The psueudo code is listed in algorithm \ref{algo:dijkstra}.
 
 \begin{algorithm}
-{\bf Input:} Source node and directed weighted graph. 
+{\bf Input:} Source node and directed weighted graph. \\
 {\bf Output:} Shortest path of every node from source node. 
 \begin{algorithmic}
 \caption{Dijkstra shortest path algorithm}
-\STATE  FILL Algorithm code here.
+\FORALL{node V in graph} 
+    \STATE{dist[V] $\gets$ infinity} 
+    \STATE{visited[V] $\gets$ false }
+\ENDFOR
+\STATE{dist[source] $\gets$ 0}
+\STATE{insert source into Q}
+\WHILE{Q is not empty} 
+    \STATE{u $\gets$ vertex in Q with smallest distance} 
+    \STATE{remove u from Q}
+    \STATE{visited[u] $\gets$ true}
+    \FORALL{neighbour v of u}
+        \STATE{alt $\gets$ dist[u] + dist\_between(u, v)}
+        \IF{alt < dist[v] \&\& !visited[v]} 
+            \STATE{dist[v] $\gets$ alt} 
+            \STATE{insert v into Q}
+        \ENDIF
+    \ENDFOR
+\ENDWHILE
 \end{algorithmic}
+\label{algo:dijkstra}
 \end{algorithm}
 
 \subsection{Minimum Spanning Tree}
