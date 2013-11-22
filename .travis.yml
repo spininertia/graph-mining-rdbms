@@ -6,5 +6,5 @@ install:
 before_script:
     - psql -c 'create database mydb;' -U postgres
 script:
-    - cd phase-3/src
+    - cd src/phase-3/src
     - python test_postgres.py
