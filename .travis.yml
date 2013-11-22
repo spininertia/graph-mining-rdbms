@@ -7,4 +7,4 @@ before_script:
     - psql -c 'create database mydb;' -U postgres
 script:
     - cd src/phase-3/src
-    - python test_postgres.py
+    - nosetests
