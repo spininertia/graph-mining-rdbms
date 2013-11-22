@@ -17,9 +17,9 @@ class TriangleTest(unittest.TestCase):
         data_file = open('data/com-youtube.ungraph.txt')
         cur = self.conn.cursor()
         cur.execute("drop table if exists %s" % self.youtube_tbl)
-        cur.execute("create table %s(from_id int, to_id int, value real DEFAULT 1)" % (self.youtube_tbl))
-        cur.copy_from(data_file, self.youtube_tbl, columns=('from_id', 'to_id'))
-        reverse_edge(self.youtube_tbl, self.conn)
+        cur.execute("create table %s(row int, col int, value real DEFAULT 1)" % (self.youtube_tbl))
+        cur.copy_from(data_file, self.youtube_tbl, columns=('row', 'col'))
+        reverse_matrix(self.youtube_tbl, self.conn)
         print "[com-youtube.ungraph.txt] loaded."
         r = count_triangle(self.youtube_tbl, self.conn)
         print "There are %s triangles in [com-youtube.ungraph.txt]." % r

@@ -23,6 +23,7 @@ def lanczos(A, b, n, m, conn):
     create_vector_or_matrix(v[1], conn) # empty v1
     assign_to(b, v[1], conn) # v_1 = b
     normalize_vector(v[1], conn) # v_1 = b/|b|
+    index_counter = 0
     for i in range(1, m+1):
         print "Iteration: %s" % i
         matrix_multiply_vector_overwrite(A, v[i], v_tmp, conn) # v = A * v_i
@@ -30,12 +31,21 @@ def lanczos(A, b, n, m, conn):
         set_matrix(alpha, i, 0, alpha_i, conn)
 
         cur = conn.cursor()
+        cur.execute("select value from %s where row = %s" % (beta, i-1))
+        beta1 = cur.fetchone()[0]
+        cur.execute("select value from %s where row = %s" % (alpha, i))
+        alpha1 = cur.fetchone()[0]
+        cur.execute("create index vindex%s ON %s (row)" % (index_counter, v[i-1]))
+        index_counter += 1
+        cur.execute("create index vindex%s ON %s (row)" % (index_counter, v[i]))
+        index_counter += 1
+        print "index builded...."
         cur.execute("""
             update %s set value = 
-            value - (select value from %s where row = %s) * (select value from %s where row = %s.row) 
-                  - (select value from %s where row = %s) * (select value from %s where row = %s.row)""" % \
-                  (v_tmp, beta, i-1, v[i-1], v_tmp, alpha, i, v[i], v_tmp))
-
+            value - %s * (select value from %s where row = %s.row) 
+                  - %s * (select value from %s where row = %s.row)""" % \
+                  (v_tmp, beta1, v[i-1], v_tmp, alpha1, v[i], v_tmp))
+        print "vector update done"
         vl = vector_length(v_tmp, conn) # |v|
         set_matrix(beta, i, 0, vl, conn) # beta_i = |v|
         if (vl == 0):
