@@ -22,6 +22,6 @@ def count_triangle(tbl_name, conn):
     lanczos(tn, b, dim, appro, conn)
     cur.execute("select sum(p)/6 from (select power(value,3.0) as p from eigenval where row = col order by value desc limit %s) as d" % appro)
     r = cur.fetchone()
-    print "There are %s triangles." % r
     drop_if_exists(tn, conn)
     drop_if_exists(b, conn)
+    return r
