@@ -102,7 +102,7 @@ def vector_dot_product(a, b, conn):
 ###########################################
 def reverse_edge(tbl, conn):
     cur = conn.cursor()
-    cur.execute("insert into %s select col, row, value from %s" % (tbl, tbl))
+    cur.execute("insert into %s select to_id, from_id, value from %s" % (tbl, tbl))
     conn.commit()
 
 def clear_table(tbl_name, conn):
