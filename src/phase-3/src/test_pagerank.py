@@ -1,50 +1,67 @@
 import sys
 import time
+import unittest
 import psycopg2
 from common.basic_operation import *
 from common.util import *
 from pagerank.pagerank import *
 
-def time_it(fn):
-    def wrapped(*args):
-        start = time.time()
-        fn(*args)
-        used = time.time() - start
-        print "Used %s seconds. " % used
-    return wrapped
+class PagerankTest(unittest.TestCase):
+    def setUp(self):
+        self.conn = psycopg2.connect(database="mydb", host="127.0.0.1", user="postgres")
 
-@time_it
-def test_route_view(conn):
-    tbl_name = 'edge_un_route'
-    data_file = 'data/as20000102.txt'
-    load_undirected_graph_into_table(tbl_name, data_file, True, conn)
-    print "[pagerank]testing route view"
-    print "data loaded"
-    calculatepagerank(tbl_name, "pagerank_route", conn)
-    print "calculation done"
+    def tearDown(self):
+        pass
 
-@time_it
-def test_google_plus(conn):
-    tbl_name = 'edge_googleplu'
-    data_file = 'data/gplus_undirected.txt'
-    load_undirected_graph_into_table(tbl_name, data_file, False, conn)
-    print "[pagerank]testing google plus"
-    print "data loaded"
-    calculatepagerank(tbl_name, "pagerank_gplus", conn)
-    print "calculation done"
+    def test_roadnet_ca(self):
+        """http://snap.stanford.edu/data/roadNet-CA.html"""
+        # undirected, no reverse
+        data_file = "data/roadNet-CA.txt"
+        tbl_name = "task2_roadnetca"
+        result_tbl = "task2_roadnetca_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "roadNet-CA....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
 
-@time_it
-def test_advogo(conn):
-    tbl_name = 'edge_advogato'
-    data_file = 'data/advogato_undirected.txt'
-    load_undirected_graph_into_table(tbl_name, data_file, False, conn)
-    print "[pagerank]testing advogato"
-    print "data loaded"
-    calculatepagerank(tbl_name, "pagerank_advotago", conn)
-    print "calculation done"    
 
-if __name__ == "__main__" :
-    conn = psycopg2.connect(database="mydb", host="127.0.0.1")
-    test_route_view(conn)
-    # test_google_plus(conn)
-    # test_advogo(conn)
+    @unittest.skip("")
+    def test_wiki_talk(self):
+        """http://snap.stanford.edu/data/wiki-Talk.html"""
+        # directed
+        data_file = "data/wiki-Talk.txt"
+        tbl_name = "task2_wikitalk"
+        result_tbl = "task2_wikitalk_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_roadnet_pa(self):
+        """http://snap.stanford.edu/data/roadNet-PA.html"""
+        # undirected, no reverse
+        data_file = "data/roadNet-PA.txt"
+        tbl_name = "task2_roadnetpa"
+        result_tbl = "task2_roadnetpa_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "roadNet-PA....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_roadnet_tx(self):
+        """http://snap.stanford.edu/data/roadNet-TX.html"""
+        # undirected, no reverse
+        data_file = "data/roadNet-TX.txt"
+        tbl_name = "task2_roadnettx"
+        result_tbl = "task2_roadnettx_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "roadNet-TX....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_youtube(self):
+        """http://snap.stanford.edu/data/com-Youtube.html"""
+        # undirected, need reverse
+        data_file = "data/com-youtube.ungraph.txt"
+        tbl_name = "task2_youtube"
+        result_tbl = "task2_youtube_result"
+        load_undirected_graph_into_table(tbl_name, data_file, True, self.conn)
+        calculatepagerank(tbl_name, result_tbl, self.conn)

@@ -35,6 +35,9 @@ BEGIN
 
     currentIndex := 0;
     damper := 0.85;
+    create index to_index on trans(to_id);
+    create index from_index on trans(from_id);
+    create index prtmp_index on pagerank_tmp(node_id);
     while currentIndex < 10 loop
         RAISE NOTICE 'currentIndex: %s', currentIndex;
 
