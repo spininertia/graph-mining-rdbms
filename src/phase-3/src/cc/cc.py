@@ -95,6 +95,10 @@ def summarize(conn, target_table):
 	max_cc = cur.fetchone()[0]
 	print "number of connected components:%d" % num_cc
 	print "largest connected components:%d vertices" % max_cc 
+	drop_if_exists(conn, "tmp")
+	cur.execute("select cnt, count(*) into tmp from (select count(*) as cnt from %s group by cid) as foo group by cnt" % target_table)
+	print "size\tcount"
+	cur.copy_to(sys.stdout, 'tmp', sep = "\t")
 	cur.close()
 
 def compute_cc(conn, edge_table, target_table):
