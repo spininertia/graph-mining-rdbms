@@ -4,8 +4,9 @@ from eigenvalue.lanczos import *
 
 def count_triangle(tbl_name, conn):
     """ input is a matrix """
+    tol = 0.1
     b = 'b'
-    lim = 15
+    lim = 30
     cur = conn.cursor()
     tn = tbl_name
     print "create matrix..."
@@ -21,8 +22,16 @@ def count_triangle(tbl_name, conn):
         cur.execute("insert into %s values (%s, %s, %s)" % (b, i, 0, 1.0 / float(dim)))
     print "init b..."
     lanczos(tn, b, dim, appro, conn)
-    cur.execute("select sum(p)/6 from (select power(value,3.0) as p from eigenval where row = col order by value desc limit %s) as d" % appro)
-    r = cur.fetchone()
+    cur.execute("select power(value,3.0) from eigenval where row = col order by value desc limit %s" % appro)
+    r = cur.fetchall()
+    print r
+    s = 0.0001
+    for i in range(len(r)):
+        if r[i][0] < 0 or abs(r[i][0]) / s < tol:
+            break
+        s += r[i][0]
     drop_if_exists(tn, conn)
     drop_if_exists(b, conn)
-    return r
+    drop_if_exists("eigenval", conn)
+    drop_if_exists("eigenvec", conn)
+    return s / 6.0
