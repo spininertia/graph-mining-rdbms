@@ -13,6 +13,79 @@ class PagerankTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @unittest.skip("")
+    def test_google_webgraph(self):
+        """http://snap.stanford.edu/data/web-Google.html"""
+        data_file = "data/web-Google.txt"
+        tbl_name = "task2_googleweb"
+        result_tbl = "task2_googleweb_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "Google webgraph....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_berkeley_stanford(self):
+        """http://snap.stanford.edu/data/web-BerkStan.html"""
+        data_file = "data/web-BerkStan.txt"
+        tbl_name = "task2_berkstan"
+        result_tbl = "task2_berkstan_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "Berkeley stanford....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_web_stanford(self):
+        """http://snap.stanford.edu/data/web-Stanford.html"""
+        data_file = "data/web-Stanford.txt"
+        tbl_name = "task2_webstanford"
+        result_tbl = "task2_webstanford_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "Web Stanford....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_amazon_purchase(self):
+        """http://snap.stanford.edu/data/com-Amazon.html"""
+        # undirected, need reverse
+        data_file = "data/com-amazon.ungraph.txt"
+        tbl_name = "task2_amazon_product"
+        result_tbl = "task2_amazon_product_result"
+        load_undirected_graph_into_table(tbl_name, data_file, True, self.conn)
+        print "Amazone product....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_slashdot0902(self):
+        """http://snap.stanford.edu/data/soc-Slashdot0902.html"""
+        data_file = "data/soc-Slashdot0902.txt"
+        tbl_name = "task2_slashdot0902"
+        result_tbl = "task2_slashdot0902_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "Slashdot0902....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_enron_email(self):
+        """http://snap.stanford.edu/data/email-Enron.html"""
+        data_file = "data/email-Enron.txt"
+        tbl_name = "task2_enronmail"
+        result_tbl = "task2_enronmail_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "Enron-mail....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
+    def test_wiki_vote(self):
+        """http://snap.stanford.edu/data/wiki-Vote.html"""
+        # directed
+        data_file = "data/wiki-Vote.txt"
+        tbl_name = "task2_wikivote"
+        result_tbl = "task2_wikivote_result"
+        load_undirected_graph_into_table(tbl_name, data_file, False, self.conn)
+        print "Wiki-cote....."
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+
+    @unittest.skip("")
     def test_roadnet_ca(self):
         """http://snap.stanford.edu/data/roadNet-CA.html"""
         # undirected, no reverse
