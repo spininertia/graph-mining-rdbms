@@ -32,6 +32,9 @@ def count_triangle(tbl_name, conn):
         s += r[i][0]
     drop_if_exists(tn, conn)
     drop_if_exists(b, conn)
-    drop_if_exists("eigenval", conn)
-    drop_if_exists("eigenvec", conn)
+    # drop_if_exists("eigenval", conn)
+    # drop_if_exists("eigenvec", conn)
     return s / 6.0
+
+def count_local_triangle(tbl_name, conn):
+    pass

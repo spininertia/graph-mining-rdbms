@@ -11,11 +11,10 @@ class TriangleTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip("")
     def test_youtube(self):
         data_file = "data/com-youtube.ungraph.txt"
         gfile = "task7_youtube_graph"
-        cur = conn.cursor()
+        cur = self.conn.cursor()
         drop_if_exists(gfile, self.conn)
         cur.execute("create table %s(row int, col int, value real DEFAULT 1)" % (gfile))
         cur.copy_from(open(data_file), gfile, columns=('row', 'col'))
@@ -97,6 +96,7 @@ class TriangleTest(unittest.TestCase):
         print "There are %s triangles." % r
         drop_if_exists(gfile, self.conn)
 
+    @unittest.skip("")
     def test_roadnet_pa(self):
         """http://snap.stanford.edu/data/roadNet-PA.html"""
         data_file = "data/roadNet-PA.txt"
