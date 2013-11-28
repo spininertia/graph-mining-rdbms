@@ -6,7 +6,7 @@ def count_triangle(tbl_name, conn):
     """ input is a matrix """
     tol = 0.1
     b = 'b'
-    lim = 30
+    lim = 10
     cur = conn.cursor()
     tn = tbl_name
     print "create matrix..."
@@ -40,7 +40,7 @@ def count_local_triangle(tbl_name, conn):
     """ input is a matrix """
     tol = 0.1
     b = 'b'
-    lim = 30
+    lim = 10
     cur = conn.cursor()
     tn = tbl_name
     print "create matrix..."
