@@ -24,7 +24,7 @@ def lanczos(A, b, n, m, conn):
     assign_to(b, v[1], conn) # v_1 = b
     normalize_vector(v[1], conn) # v_1 = b/|b|
     index_counter = 0
-    for i in range(1, m+1):
+    for i in range(1, m):
         print "Iteration: %s" % i
         matrix_multiply_vector_overwrite(A, v[i], v_tmp, conn) # v = A * v_i
         alpha_i = vector_dot_product(v[i], v_tmp, conn) # alpha_i = v_i * v
@@ -54,26 +54,35 @@ def lanczos(A, b, n, m, conn):
         assign_to(v_tmp, v[i+1], conn) # v_i+1 = v
         cur = conn.cursor()
         cur.execute("update %s set value = value / (select value from %s where row = %s)" % (v[i+1], beta, i))
-    # copy v into a matrix, they are still separate vector now
-    # seems like V is useless, so I would not bother transform it.
-    ritz_vector(alpha, beta, m, conn)
+    cur = conn.cursor()
+    V_mat = "v_matrix"
+    create_vector_or_matrix(V_mat, conn)
+    print "The width is %s" % len(v)
+    for i in range(m):
+        vvv = v[i]
+        print "appending %s" % vvv
+        cur.execute("insert into %s select row, %s, value from %s" % (V_mat, i, vvv))
+        drop_if_exists(vvv, conn)    
+    ritz_vector(alpha, beta, m, V_mat, conn)
     drop_if_exists('alpha', conn)
     drop_if_exists('beta', conn)
     drop_if_exists('b', conn)
     drop_if_exists('t', conn)
     drop_if_exists('v', conn)
     drop_if_exists('v_tmp', conn)    
-    for vvv in v:
-        drop_if_exists(vvv, conn)
 
-
-def ritz_vector(alpha, beta, m, conn):
+def ritz_vector(alpha, beta, m, V, conn):
     """
     solve eigenvector for a smaller martix
     """
     t = "t"
+    print "Building triagonal matrix"
     build_tridiagonal_matrix(alpha, beta, m, t, conn)
-    eigen_quodratic(t, 'eigenvec', 'eigenval', m, conn)
+    print "QR decomposition"
+    eigen_quodratic(t, 'eigenvec_tmp', 'eigenval', m, conn)
+    print "Calculating eigen vectors....."
+    matrix_multiply_matrix_overwrite(V, 'eigenvec_tmp', 'eigenvec', conn)
+    drop_if_exists("eigenvec_tmp", conn)
     print "Eigenvector calculated, they are stored in %s and %s" % ('eigenval', 'eigenvec')
 
 def build_tridiagonal_matrix(alpha, beta, m, t, conn):

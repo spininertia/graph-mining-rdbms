@@ -22,5 +22,6 @@ class LocalTriangleTest(unittest.TestCase):
         print "Wiki vote builded ..."
         reverse_matrix(gfile, self.conn)
         # count local triangle
-        r = count_triangle(gfile, self.conn)
+        print "calculating local triangles"
+        count_local_triangle(gfile, self.conn)
         drop_if_exists(gfile, self.conn)
