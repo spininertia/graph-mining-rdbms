@@ -16,7 +16,7 @@ In out final experiment suit, a more large and diverse datasets from different d
 	\item{{\bf Konect:}}{Konect has more diverse datasets compared to SNAP, like citation network. It's a good target to analyze features of non-social networks, we will examine whether such networks follow power law by generating degree distribution, etc.}
 \end{description}
 
-Figure \ref{fig:pagerank} plots the distribution of different rank value.We also calculated statistics about the weakly connected components in table \ref{table:wcc}.We compute radius for every node in Advogato dataset, the result is in table \ref{table:radius}:
+We also calculated statistics about the weakly connected components in table \ref{table:wcc}.We compute radius for every node in Advogato dataset, the result is in table \ref{table:radius}:
 
 \input{t1_exp}
 
@@ -76,15 +76,6 @@ Figure \ref{fig:pagerank} plots the distribution of different rank value.We also
 \end{center}
 \end{figure}
 
-\subsection{Triangle Counting(Design)}
-The main reason of triangle counting is to compare the capability of each solution(RDBMS, general purpose programming language). We will apply RDBMS version and c++/java version, record their running time and resource usage, then do performance analysis. 
-
-\subsection{Belief Propagation(Design)}
-In order to investigate the gain of using RDBMS, We plan to compare the efficiency of RDBMS's implementation of BP with BP in general purpose languages like c++/java. We ponder that the difference will be only observable in large dataset, we will conduct experiments to try to estimate that. 
-
-\subsection{Eigenvalue/SVD(Design)}
-SVD is a powerful tool at dimension reduction, or in another words, clustering. So We plan to apply SVD to social networks to find communities, and some work has been done by researchers in data mining and matrix analysis. 
-
 \subsection{Broad Spectrum Analysis}
 We apply our proposed graph mining algorithms to several real-world graph datasets from KONECT project to find global patterns and detect strange behaviors. In the following, we'll first describe the dataest then discuss  what we observe. 
 
@@ -92,8 +83,6 @@ We apply our proposed graph mining algorithms to several real-world graph datase
 	\item{{\bf Route Views\cite{konect:2013:as20000102, konect:DBLP}:}}{This is an undirected network of autonomous systems of the Internet connected with each other. Nodes are autonomous systems (AS), and edges denote communication. The network contains loops. It contains 6,474 vertices and 13,895 edges.}
 	\item{{\bf DBLP\cite{konect:2013:dblp-cite, konect:DBLP}:}}{This is the citation network of DBLP, a database of scientific publications such as papers and books. Each node in the network is a publication, and each edge represents a citation of a publication by another publication. In other words, the directed edge (A to B) denotes that publication A cites publication B. Publications are allowed to cite themselves, and therefore the network contains loops. It contains 12,495 vertices and 49,793 edges.}
 \end{description}
-
-We first show the degree distribution of these graphs, blah blah...
 
 \begin{figure}[htbf]
 \begin{center}
