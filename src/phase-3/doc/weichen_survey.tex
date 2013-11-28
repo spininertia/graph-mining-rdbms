@@ -44,3 +44,21 @@ The fourth paper was "Pig Latin: A Not-So-Foreign Language for Data Processing".
 \item {\em Shortcomings}:
     There are few graph mining algorithms implementation in Pig Latin, only a few open source analysis package like Linkedin's Datafu. And Pig only supports read-only data analysis workloads, which may lead to many unnecessary efforts if we want to do extensive write during computation.
 \end{itemize*}
+
+The fifth paper was "Fast counting of triangles in large real networks without counting: Algorithms and laws" \cite{tsourakakis2008fast}.
+\begin{itemize*}
+\item {\em Main idea}: 
+    The paper proposed a analytical method to count the number of triangles in social networks. It is based upon two theorems regarding the fundamental property of adjencency matrix. The first theorem is that the number of global triangles is proportional to the sum of cubes of its eigenvalues, which is more formally defined as follow: 
+      \begin{equation}
+      \Delta(G) = \frac{1}{6}\sum_{i=1}^{n} \lambda_{i}^{3}
+      \end{equation}
+    Another one is about local triangle, the formula for its count is as follows:
+      \begin{equation}
+      \Delta_{i} = \frac{\sum_{j} u_{ij}^{2} \lambda_{j}^{3}}{2}
+      \end{equation}
+    The author conducted several experiments on different datasets. and discovered several patterns using visualization, such as power law. 
+\item {\em Use for our project}:
+    For task 7, we adopt the algorithms described in the paper to count the number of global triangles and local triangles. The algorithm to calculate eigenvalues and eigenvectors is Lanczos, which is well suited for solving approximate top-k eigenvalues and eigenvectors.
+\item {\em Shortcomings}:
+    The paper didn't discuss the selection of k, which is the number of top eigenvalues use for calculation. So most implementations have to randomly pick a small number and verify its effect. And how the magnitude of k will affect the running time of the algorithm.
+\end{itemize*}

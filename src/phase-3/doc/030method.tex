@@ -15,7 +15,7 @@ The following are the algorithms we plan to implement. The reason we choose them
 \end{description}
 
 \subsection{Degree Distribution}
-We employ Postgres's group by command according to either source node or target node to count the degree distribution according to each node. 
+We employ Postgres's group by command according to either source node or target node to count the degree distribution according to each node. The psueudo code is in Algorithm \ref{algo1:1}, \ref{algo1:2}.
 
 \begin{algorithm}
 \caption{Out Degree distribution}
@@ -23,6 +23,7 @@ We employ Postgres's group by command according to either source node or target 
 \STATE{Group edges according to source node's id}
 \STATE{Count the number of members of each group}
 \end{algorithmic}
+\label{algo1:1}
 \end{algorithm}
 
 \begin{algorithm}
@@ -31,10 +32,20 @@ We employ Postgres's group by command according to either source node or target 
 \STATE{Group edges according to target node's id}
 \STATE{Count the number of members of each group}
 \end{algorithmic}
+\label{algo1:2}
 \end{algorithm}
 
+\subsubsection{Idea of SQL implementation}
+The only operation we need from SQL is its group by clause. We can aggregate the edges accroding with source node or target node.
+
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
+
 \subsection{Pagerank}
-The algorithm of pagerank is Power method. We do matrix multiplication continusly until the change in pagerank is small. 
+The algorithm of pagerank is Power method. We do matrix multiplication continusly until the change in pagerank is small. The most important euqation for calculating pagerank is as follows:
+\begin{equation}
+  PR(i) = \alpha \frac{1}{N} + (1 - \alpha) \sum_{j \in InNeighbor(i)} \frac{PR(j)}{OutDegree(j)}
+\end{equation}
 \begin{algorithm}
 \caption{Pagerank}
 \begin{algorithmic}
@@ -46,6 +57,13 @@ The algorithm of pagerank is Power method. We do matrix multiplication continusl
 \UNTIL{Convergence}
 \end{algorithmic}
 \end{algorithm}
+
+\subsubsection{Idea of SQL implementation}
+The implementation consists of several components.
+First, we have a \emph{graph} which has the schema \emph{(from\_id, to\_id, weight)}. Then we will build a \emph{rank} table has the schema \emph{(node\_id, rank)}, all the rank are initialized randomly. After we enter loop, we will do a large matrix vector multiplication, which is implemented by SQL \emph{select} and \emph{join}. The new pagerank is stored in a temporary table. After the loop is over, we calclate the updates to every node, if the change is little, then abort.
+
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
 
 \subsection{Weakly connected components}
 In terms of the implementation of weakly connected components. We borrow the idea of HCC method from the "PEGASUS" paper.\cite{Kang09}
@@ -63,6 +81,9 @@ The algorithm can be described as following:
 \end{algorithm}
 After several rounds of iteration, the nodes in the same connected component will share the same component id.
 The number of iterations for convergence can be proved to be upper bounded by the diameter of the graph.
+
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
 
 \subsection{Radius of every node}
 We discard the traditional algorithm because it is extremely infeasible for large graphs, since it uses a set to record every neghbors within n hops for a node during iteration, which requires a O($n^2$) space.
@@ -95,6 +116,10 @@ To make this algorithm possible in SQL, we defined some user defined functions:
   \item[fmSize:] Estimate the size of a set encoded by FM-bitstring.
 \end{description}
 
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
+
+
 \subsection{Belief Propagation}
 For belief propagation, we use the fabp method proposed in paper\cite{DBLP:conf/pkdd/KoutraKKCPF11}.
 It can be shown that the solution of belief propagation can be approximated by the linear system:$$[\mathbf{I}	 + a\mathbf{D} - c\mathbf{A}]\mathbf{b_h} = \mathbf{\phi_h}$$ 
@@ -119,7 +144,10 @@ Given this power method, the implementation is pretty straightforward as describ
 \label{bp:algo4}
 \end{algorithm}
 
-\subsection{Eigenvalue/SVD}
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
+
+\subsection{Eigenvalue}
 We adopt the method propose in \cite{kang2011spectral}. There are several methods to solve part of eigenvalue computation problems, for instance, power method\cite{langville2004deeper}. While it has the limitation that it can only extract the eigenvector with biggest eigenvalue. Several method have been proposed to extract top k eigenvectors simultaneously. The approach we use is Lanczos algorithm\cite{lanczos1950iteration}. The general idea about this algorithm is that instead of directly work on an $N \times N$ matrix, we first generate a skinny $N \times m$ matrix(M $\ll$ N). Then it computes a small $M \times M$ dense matrix which has good approximation to the eigenvalues of the original matrix. In this case, we directly apply quadratic algorithm to top-k eigenvalues. Notice that k $<$ M.
 
 {\bf{Algorithm detail:}} Different from power method, the intermediate multiplication matrix is used to construct a set of orthonormal base of \emph{Krylv subspace $K_{m}$} which follows the definition:
@@ -187,6 +215,22 @@ coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
 \label{eigen:algo3}
 \end{algorithm}
 
+\subsubsection{Idea of SQL implementation}
+Since the algorithm of Lanczos algorithm is matrix calculation intensive, so we wrap all matrix related operation in our host language Python. I'll list the most important routines that appears very often in my high level implementation of Lanczos. Then in the final python code, I'l just call these wrappers instead of using raw SQL again and again.
+\begin{description}
+  \item[create\_vector\_or\_matrix:]{declare a vector/matrix variable}
+  \item[assign\_to:]{Copy a variable's value to another variable}
+  \item[vetorr\_length:]{Return the length of a vector}
+  \item[vector\_dot\_product:]{take the dot product of two vectors}
+  \item[reverse\_matrix:]{Append reverse of every edge into original graph}
+  \item[matrix\_multiply\_matrix\_overwrite:]{Multiply a matrix with a matrix}
+  \item[matrix\_multiplt\_vector\_overwrite:]{Multiply a matrix with a vector}
+  \item[normalzed\_vector:]{Normalize a vector}
+\end{description}
+
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
+
 \subsection{Count of Triangle}
 We use a simple technique proposed by \cite{tsourakakis2008fast}, its general idea is build upon a theorem that the count of triangles in a graph is proportional to the sum of cubes of eigenvalues of the graph. 
 
@@ -210,6 +254,12 @@ The algorithm to calculate global triangles is as follows:
 \RETURN{$\bigtriangleup'(G)$}
 \end{algorithmic}
 \end{algorithm}
+
+\subsubsection{Idea of SQL implementation}
+We will call Lanczos to get the eigenvalues and eigenvectors of the graph, and sum up the number using SQL \emph{select}.
+
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
 
 \subsection{Shortest Path}
 We adopt Dijkstra's shortest algorithm to compute shortest path from the source node. It works for directed weighted
@@ -242,6 +292,12 @@ graph which has $O(|V| log |V| + |E|)$ time complexity. The psueudo code is list
 \label{algo:dijkstra}
 \end{algorithm}
 
+\subsubsection{Idea of SQL implementation}
+This is implemented purely in SQL. Just like ordinary C code, I have a table to record the current status(visited, distance) of each node, and update one node at a time. 
+
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
+
 \subsection{Minimum Spanning Tree}
 We use the classical Prim's algorithm for this additional task. We abandon the Kruskal's algorithm because the disjoint set is not easy to implement using SQL. The implementation can be described in algorithm \ref{prim:algo}.
 
@@ -260,6 +316,8 @@ We use the classical Prim's algorithm for this additional task. We abandon the K
 \label{prim:algo}
 \end{algorithm}
 
+\subsubsection{SQL code}
+Please refer to the code in {\bf Apppendix}.
 
 
 

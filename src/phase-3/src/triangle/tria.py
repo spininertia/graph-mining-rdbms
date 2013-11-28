@@ -6,7 +6,7 @@ def count_triangle(tbl_name, conn):
     """ input is a matrix """
     tol = 0.1
     b = 'b'
-    lim = 30
+    lim = 10
     cur = conn.cursor()
     tn = tbl_name
     print "create matrix..."
@@ -32,6 +32,46 @@ def count_triangle(tbl_name, conn):
         s += r[i][0]
     drop_if_exists(tn, conn)
     drop_if_exists(b, conn)
-    drop_if_exists("eigenval", conn)
-    drop_if_exists("eigenvec", conn)
+    # drop_if_exists("eigenval", conn)
+    # drop_if_exists("eigenvec", conn)
     return s / 6.0
+
+def count_local_triangle(tbl_name, conn):
+    """ input is a matrix """
+    tol = 0.1
+    b = 'b'
+    lim = 10
+    cur = conn.cursor()
+    tn = tbl_name
+    print "create matrix..."
+    create_vector_or_matrix(b, conn)
+    print "Counting dimension..."
+    calc_dim_query = "select max(row), max(col) from %s" % (tn)
+    cur.execute(calc_dim_query)
+    p = cur.fetchone()
+    dim = max(p) + 1
+    print "dimension is %s" % dim    
+    appro = min(dim, lim);
+    for i in range(dim):
+        cur.execute("insert into %s values (%s, %s, %s)" % (b, i, 0, 1.0 / float(dim)))
+    print "init b..."
+    lanczos(tn, b, dim, appro, conn)
+    ltriangle = "task7_local_triangle_count"
+    drop_if_exists(ltriangle, conn)
+    cur = conn.cursor()
+    cur.execute("create table %s (nid int, cnt int)" % ltriangle)
+    print "calculating the local triangle count for each node"
+    cur.execute("insert into %s select U.row, round(sum(power(U.value, 2.0) * power(V.value, 3.0) / 2.0)) from eigenvec U, eigenval V where U.col = V.row and V.row = V.col group by U.row" % (ltriangle))
+
+
+
+
+
+
+
+
+
+
+
+
+

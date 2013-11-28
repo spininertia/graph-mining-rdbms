@@ -116,7 +116,7 @@ def clear_table(tbl_name, conn):
     conn.commit()
 
 def matrix_multiply_matrix_overwrite(a, b, result, conn):
-    clear_table(result, conn);
+    create_vector_or_matrix(result, conn)
     cur = conn.cursor()
     cur.execute("insert into %s select A.row, B.col, sum(A.value * B.value) from %s A, %s B where A.col = B.row group by A.row, B.col" % (result, a, b))
     conn.commit()
