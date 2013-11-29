@@ -21,8 +21,8 @@ def assign_fm(conn, tbl_name, edge_table, s):
 @time_it
 def update_bitstring(conn, edge_table, vertex_table, tmp_table):
 	cur = conn.cursor()
-	cur.execute("delete from %s" % tmp_table)
-	cur.execute("insert into %s select src_id, agg_bit_or(fm) from %s, %s where dst_id = id group by src_id" %(tmp_table, edge_table, vertex_table))
+	#cur.execute("delete from %s" % tmp_table)
+	cur.execute("update %s as A set fm = foo.fm from (select src_id as id, agg_bit_or(fm) as fm from %s, %s where dst_id = id group by src_id) as foo where A.id = foo.id" %(tmp_table, edge_table, vertex_table))
 	conn.commit()
 	cur.close()
 
@@ -84,21 +84,28 @@ def compute_radius(conn, edge_table, dataset, s):
 	cur.execute("create table %s(id int, radius int)" % radius_table)
 	cur.execute("insert into %s select src_id, 0 from %s group by src_id" % (hop_table, tmp_edge))
 
-	cur.execute("drop index if exists radius_index")
 	cur.execute("drop index if exists edge_src_index")
 	cur.execute("drop index if exists edge_dst_index")
+	cur.execute("drop index if exists vertex_index")
+	cur.execute("drop index if exists tmp_index")
 	cur.execute("create index edge_src_index on %s (src_id)" % tmp_edge)
 	cur.execute("create index edge_dst_index on %s(dst_id)" % tmp_edge)
+
 	conn.commit()
 
-	print "initialized.."
 	assign_fm(conn, vertex_table, tmp_edge, s)
+	cur.execute("insert into %s select * from %s"  % (tmp_table, vertex_table))
+	cur.execute("create index vertex_index on %s (id)" % vertex_table)
+	cur.execute("create index tmp_index on %s (id)" % tmp_table)
+	conn.commit()
+	print "initialized.."
 	max_iteration = 256
 	for i in range(max_iteration):
 		print "iteration %d" % i
 		if (i != 0):
-			cur.execute("delete from %s" % vertex_table)
-			cur.execute("insert into %s select * from %s" % (vertex_table, tmp_table))
+			# cur.execute("delete from %s" % vertex_table)
+			# cur.execute("insert into %s select * from %s" % (vertex_table, tmp_table))
+			cur.execute("update %s as A set fm = B.fm from %s as B where A.id = B.id" % (vertex_table, tmp_table))
 			conn.commit()
 		update_bitstring(conn, tmp_edge, vertex_table, tmp_table)
 		if (is_stablized(conn, vertex_table, tmp_table)):
