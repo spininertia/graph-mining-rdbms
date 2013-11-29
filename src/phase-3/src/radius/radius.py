@@ -1,4 +1,6 @@
 import sys
+import random
+import math
 
 def time_it(fn):
 	def wrapped(*args):
@@ -10,13 +12,32 @@ def time_it(fn):
 	return wrapped
 
 @time_it
-def assign_fm(conn, tbl_name, edge_table, s):
+def assign_fm(conn, tbl_name, edge_table, k):
 	cur = conn.cursor()
-	cur.execute("delete from %s" % tbl_name)
-	cur.execute("insert into %s select src_id, fm_assign(%d) from %s group by src_id" % (tbl_name, s, edge_table))
+	# cur.execute("delete from %s" % tbl_name)
+	# cur.execute("insert into %s select src_id, fm_assign(%d) from %s group by src_id" % (tbl_name, s, edge_table))
+	cur.execute("select distinct src_id from %s"% edge_table)
+	records = cur.fetchall()
+	query = "insert into " + tbl_name + " values(%s, %s)"
+	for i in range(len(records)):
+		src_id = records[i][0]
+		fm_string = generate_k_fm_strings(k)
+		cur.execute(query, (src_id, fm_string))
+
 	conn.commit()
 
 	cur.close()
+
+def generate_k_fm_strings(k):
+	return [generate_fm_string() for i in range(k)]
+	
+def generate_fm_string():
+	ran = random.random()
+	index = math.floor(math.log(ran, 0.5))
+	if index > 31:
+		index = 31
+	return 1<<int(index)
+
 
 @time_it
 def update_bitstring(conn, edge_table, vertex_table, tmp_table):
@@ -77,8 +98,8 @@ def compute_radius(conn, edge_table, dataset, s):
 	#cur.execute("drop index if exists radius_index ")
 	#cur.execute("create index radius_index on %s (src_id) " % edge_table)
 
-	cur.execute("create table %s(id int, fm bit(32)[])" % vertex_table)
-	cur.execute("create table %s(id int, fm bit(32)[])" % tmp_table)
+	cur.execute("create table %s(id int, fm int[])" % vertex_table)
+	cur.execute("create table %s(id int, fm int[])" % tmp_table)
 
 	cur.execute("create table %s(id int, radius int)" % hop_table)
 	cur.execute("create table %s(id int, radius int)" % radius_table)

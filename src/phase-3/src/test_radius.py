@@ -1,11 +1,13 @@
 import psycopg2
 import unittest
 from radius.radius import *
+from radius.functions import *
 from common.util import *
 
 class RadiusTest(unittest.TestCase):
 	def setUp(self):
 		self.conn = psycopg2.connect(database="mydb", host="127.0.0.1")
+		init_udf(self.conn)
 
 	def tearDown(self):
 		pass
@@ -15,8 +17,8 @@ class RadiusTest(unittest.TestCase):
 		"""http://snap.stanford.edu/data/com-Amazon.html"""
 		data_file = "../data/amazon.txt"
 		edge_table = "amazon"
-		dataset = "cc_amazon"
-		load_unweighted_graph(edge_table, data_file, False, self.conn)
+		dataset = "amazon"
+		load_unweighted_graph(edge_table, data_file, True, self.conn)
 		print "amazon.."
 		compute_radius(self.conn, edge_table, dataset, 4)
 
@@ -28,9 +30,9 @@ class RadiusTest(unittest.TestCase):
 		dataset = "soc_sign_epinions"
 		load_weighted_graph(edge_table, data_file, False, self.conn)
 		print "soc_sign_epinions.."
-		compute_radius(self.conn, edge_table, dataset, 8)
+		compute_radius(self.conn, edge_table, dataset, 32)
 
-	#@unittest.skip("")
+	@unittest.skip("")
 	def test_email_EuAll(self):
 		"""http://snap.stanford.edu/data/email-EuAll.html"""
 		data_file = "../data/email-EuAll.txt"
@@ -38,7 +40,7 @@ class RadiusTest(unittest.TestCase):
 		dataset = "email_EuAll"
 		load_unweighted_graph(edge_table, data_file, False, self.conn)
 		print "email_EuAll.."
-		compute_radius(self.conn, edge_table, dataset, 8)
+		compute_radius(self.conn, edge_table, dataset, 32)
 
 	@unittest.skip("")
 	def test_web_google(self):
@@ -48,7 +50,7 @@ class RadiusTest(unittest.TestCase):
 		dataset = "web_google"
 		load_unweighted_graph(edge_table, data_file, False, self.conn)
 		print "web google.."
-		compute_radius(self.conn, edge_table, dataset, 1)
+		compute_radius(self.conn, edge_table, dataset, 4)
 
 	@unittest.skip("")
 	def test_youtube(self):
@@ -58,4 +60,4 @@ class RadiusTest(unittest.TestCase):
 		dataset = "youtube"
 		load_unweighted_graph(edge_table, data_file, False, self.conn)
 		print "youtube.."
-		compute_radius(self.conn, edge_table, dataset, 1)
+		compute_radius(self.conn, edge_table, dataset, 4)

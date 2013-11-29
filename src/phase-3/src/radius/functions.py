@@ -4,14 +4,14 @@ import psycopg2
 def create_bit_or(conn):
 	func_def = \
 		'''
-		create or replace function bit_or(BIT[], BIT[])
-		returns BIT[]
+		create or replace function bit_or(int[], int[])
+		returns int[]
 		AS
 		$$
 		declare
 		bs1 ALIAS for $1;
 		bs2 ALIAS for $2;
-		retval BIT(32)[];
+		retval int[];
 		BEGIN
 			for i in array_lower(bs1, 1)..array_upper(bs2, 1) LOOP
 				retval[i] := bs1[i] | bs2[i];
@@ -26,13 +26,13 @@ def create_bit_or(conn):
 
 def create_agg_bit_or(conn):
 	cur = conn.cursor()
-	cur.execute("drop aggregate if exists agg_bit_or(bit[])")
+	cur.execute("drop aggregate if exists agg_bit_or(int[])")
 	func_def = \
 	'''
-	CREATE AGGREGATE agg_bit_or(bit[])
+	CREATE AGGREGATE agg_bit_or(int[])
 	(
 		sfunc = bit_or,
-		stype = bit[]	
+		stype = int[]	
 	);
 	'''
 	create_function(conn ,func_def)
