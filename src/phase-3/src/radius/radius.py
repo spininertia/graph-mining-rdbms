@@ -131,7 +131,7 @@ def compute_radius(conn, edge_table, dataset, s):
 		update_bitstring(conn, tmp_edge, vertex_table, tmp_table)
 		if (is_stablized(conn, vertex_table, tmp_table)):
 			break
-		cur.execute("insert into %s (select A.id, %d from %s as A, %s as B where A.id = B.id and A.fm <> B.fm)" % (hop_table, i, vertex_table, tmp_table))
+		cur.execute("insert into %s (select A.id, %d from %s as A, %s as B where A.id = B.id and A.fm <> B.fm)" % (hop_table, i + 1, vertex_table, tmp_table))
 		
 	cur.execute("insert into %s select id, max(radius) from %s group by id" %(radius_table, hop_table))
 	cur.execute("insert into %s select distinct dst_id, 0 from %s except (select distinct src_id, 0 from %s)" % (radius_table, edge_table, edge_table))

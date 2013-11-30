@@ -28,9 +28,9 @@ class RadiusTest(unittest.TestCase):
 		data_file = "../data/soc-sign-epinions.txt"
 		edge_table = "soc_sign_epinions"
 		dataset = "soc_sign_epinions"
-		load_weighted_graph(edge_table, data_file, False, self.conn)
+		load_weighted_graph(edge_table, data_file, True, self.conn)
 		print "soc_sign_epinions.."
-		compute_radius(self.conn, edge_table, dataset, 32)
+		compute_radius(self.conn, edge_table, dataset, 1)
 
 	@unittest.skip("")
 	def test_email_EuAll(self):
@@ -38,19 +38,19 @@ class RadiusTest(unittest.TestCase):
 		data_file = "../data/email-EuAll.txt"
 		edge_table = "email_EuAll"
 		dataset = "email_EuAll"
-		load_unweighted_graph(edge_table, data_file, False, self.conn)
+		load_unweighted_graph(edge_table, data_file, True, self.conn)
 		print "email_EuAll.."
-		compute_radius(self.conn, edge_table, dataset, 32)
+		compute_radius(self.conn, edge_table, dataset, 8)
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_web_google(self):
 		"""http://snap.stanford.edu/data/web-Google.html"""
 		data_file = "../data/web_google.txt"
 		edge_table = "web_google"
 		dataset = "web_google"
-		load_unweighted_graph(edge_table, data_file, False, self.conn)
+		load_unweighted_graph(edge_table, data_file, True, self.conn)
 		print "web google.."
-		compute_radius(self.conn, edge_table, dataset, 4)
+		compute_radius(self.conn, edge_table, dataset, 1)
 
 	@unittest.skip("")
 	def test_youtube(self):
@@ -58,6 +58,26 @@ class RadiusTest(unittest.TestCase):
 		data_file = "../data/youtube.txt"
 		edge_table = "youtube"
 		dataset = "youtube"
-		load_unweighted_graph(edge_table, data_file, False, self.conn)
+		load_unweighted_graph(edge_table, data_file, True, self.conn)
 		print "youtube.."
-		compute_radius(self.conn, edge_table, dataset, 4)
+		compute_radius(self.conn, edge_table, dataset, 1)
+
+	@unittest.skip("")
+	def test_dblp(self):
+		"""dblp"""
+		data_file = "../data/dblp.txt"
+		edge_table = "dblp"
+		dataset = "dblp"
+		load_unweighted_graph(edge_table, data_file, True, self.conn)
+		print "dblp.."
+		compute_radius(self.conn, edge_table, dataset, 1)
+
+	@unittest.skip("")
+	def test_synthetic(self):
+		"""test_synthetic"""
+		data_file = "../data/synthetic.txt"
+		edge_table = "synthetic"
+		dataset = "synthetic"
+		load_unweighted_graph(edge_table, data_file, True, self.conn, " ")
+		print "synthetic.."
+		compute_radius(self.conn, edge_table, dataset, 32)
