@@ -35,14 +35,17 @@ We employ Postgres's group by command according to either source node or target 
 \label{algo1:2}
 \end{algorithm}
 
+\subsubsection{Math}
+First we need to count degree of each node. Then we count the frequency of each degree count. 
+
 \subsubsection{Idea of SQL implementation}
-The only operation we need from SQL is its group by clause. We can aggregate the edges accroding with source node or target node.
+The only operation we need from SQL is its group by clause. We can aggregate the edges according with source node or target node.
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Pagerank}
-The algorithm of pagerank is Power method. We do matrix multiplication continusly until the change in pagerank is small. The most important euqation for calculating pagerank is as follows:
+The algorithm of pagerank is Power method. We do matrix multiplication continuously until the change in pagerank is small. The most important euqation for calculating pagerank is as follows:
 \begin{equation}
   PR(i) = \alpha \frac{1}{N} + (1 - \alpha) \sum_{j \in InNeighbor(i)} \frac{PR(j)}{OutDegree(j)}
 \end{equation}
@@ -57,6 +60,13 @@ The algorithm of pagerank is Power method. We do matrix multiplication continusl
 \UNTIL{Convergence}
 \end{algorithmic}
 \end{algorithm}
+
+\subsubsection{Math}
+According to the definition of pagerank, we can gain an intuitive idea of how to calculate the pagerank of a node.
+We just take weighted sum of its incoming neighbors. We can encode this operation as matrix vector multiplication.
+We can do this multiple times. And the fix point of the equation is the pagerank of the graph. And by the results 
+from linear algebra, we know that the stable vector is the eigenvector with biggest eigenvalue. Thus we can get 
+the eigenvector by power method, which just do multiplication until convergence. 
 
 \subsubsection{Idea of SQL implementation}
 The implementation consists of several components.
@@ -153,25 +163,10 @@ Given this power method, the implementation is pretty straightforward as describ
 The major computation involved is matrix vector multiplication, which is easy to implement in SQL using join and group by step.
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Eigenvalue}
 We adopt the method propose in \cite{kang2011spectral}. There are several methods to solve part of eigenvalue computation problems, for instance, power method\cite{langville2004deeper}. While it has the limitation that it can only extract the eigenvector with biggest eigenvalue. Several method have been proposed to extract top k eigenvectors simultaneously. The approach we use is Lanczos algorithm\cite{lanczos1950iteration}. The general idea about this algorithm is that instead of directly work on an $N \times N$ matrix, we first generate a skinny $N \times m$ matrix(M $\ll$ N). Then it computes a small $M \times M$ dense matrix which has good approximation to the eigenvalues of the original matrix. In this case, we directly apply quadratic algorithm to top-k eigenvalues. Notice that k $<$ M.
-
-{\bf{Algorithm detail:}} Different from power method, the intermediate multiplication matrix is used to construct a set of orthonormal base of \emph{Krylv subspace $K_{m}$} which follows the definition:
-\begin{equation}
-K_{m} = < b, Ab, \cdots, A^{m-1}b>.
-\end{equation}
-The sub procedure to construct orthonormal bases may be any standard algorithm, for example Gram-schmidt algorithm. We can view Lanczos algorithm as an iterative method which incrementally construct Krylov subspace. The pseudo-code is shown in Algorithm \ref{eigen:algo1}.
-
-After Lanczos factorization, we get a few matrices that satisfy the following equation:
-\begin{equation}
-	AV_{m} = V_{m}T_{m} + f_{m}e^{T}_{m}
-\end{equation}
-To name a few, $A^{n\times m}$ is input matrix, $V^{n\times m}_{m}$ contains the m orthonormal bases, $T^{m\times m}_{m}$ is a tridiagonal matrix, $f_{m}$ is new n-vector orthogonal to all columns of $V_{m}$, $
-e_{m}$ is a vector that \emph{m}th element is 1, and others 0. After algorithm \ref{eigen:algo1}, we need to construct the matrix $T^{m\times m}_{m}$. The algorithm is quite simple, it is listed in algorithm \ref{eigen:algo2}. 
-
-The eigenvalues of $T_{m}$ are called Ritz values, and $V_{m}Y$'s columns are called Ritz vector. It is constructed by Algorithm \ref{eigen:algo3}. We expect the Ritz values and Ritz vectors to be good approximation of the eigenvalues and eigenvectors of original matrix. The computation of eigenvalues of $T_{m}$ can be done by standard quadratic algorithms, such as QR method. 
 
 \begin{algorithm}
 {\bf Input:} Matrix $A^{n \times m}$\\
@@ -223,6 +218,23 @@ coefficients $\alpha[1..m]$ and $\beta[1..m-1]$
 \label{eigen:algo3}
 \end{algorithm}
 
+\subsubsection{Math}
+Different from power method, the intermediate multiplication matrix is used to construct a set of orthonormal base of \emph{Krylv subspace $K_{m}$} which follows the definition:
+\begin{equation}
+K_{m} = < b, Ab, \cdots, A^{m-1}b>.
+\end{equation}
+The sub procedure to construct orthonormal bases may be any standard algorithm, for example Gram-schmidt algorithm. We can view Lanczos algorithm as an iterative method which incrementally construct Krylov subspace. The pseudo-code is shown in Algorithm \ref{eigen:algo1}.
+
+After Lanczos factorization, we get a few matrices that satisfy the following equation:
+\begin{equation}
+	AV_{m} = V_{m}T_{m} + f_{m}e^{T}_{m}
+\end{equation}
+To name a few, $A^{n\times m}$ is input matrix, $V^{n\times m}_{m}$ contains the m orthonormal bases, $T^{m\times m}_{m}$ is a tridiagonal matrix, $f_{m}$ is new n-vector orthogonal to all columns of $V_{m}$, $
+e_{m}$ is a vector that \emph{m}th element is 1, and others 0. After algorithm \ref{eigen:algo1}, we need to construct the matrix $T^{m\times m}_{m}$. The algorithm is quite simple, it is listed in algorithm \ref{eigen:algo2}. 
+
+The eigenvalues of $T_{m}$ are called Ritz values, and $V_{m}Y$'s columns are called Ritz vector. It is constructed by Algorithm \ref{eigen:algo3}. We expect the Ritz values and Ritz vectors to be good approximation of the eigenvalues and eigenvectors of original matrix. The computation of eigenvalues of $T_{m}$ can be done by standard quadratic algorithms, such as QR method. 
+
+
 \subsubsection{Idea of SQL implementation}
 Since the algorithm of Lanczos algorithm is matrix calculation intensive, so we wrap all matrix related operation in our host language Python. I'll list the most important routines that appears very often in my high level implementation of Lanczos. Then in the final python code, I'l just call these wrappers instead of using raw SQL again and again.
 \begin{description}
@@ -242,7 +254,15 @@ Please refer to the code in {\bf Apppendix}.
 \subsection{Count of Triangle}
 We use a simple technique proposed by \cite{tsourakakis2008fast}, its general idea is build upon a theorem that the count of triangles in a graph is proportional to the sum of cubes of eigenvalues of the graph. 
 
+
+\subsubsection{Global triangle}
 The algorithm to calculate global triangles is as follows:
+
+\paragraph{Math}
+The formula to count global triangle is sum of cubes of eigenvalues, which is:
+\begin{equation}
+    \Delta(G) \gets \frac{1}{6} \sum_{j=1}^{i-1}\lambda_{j}^{3}
+\end{equation}
 
 \begin{algorithm}
 \caption{The EigenTriangle algorithm}
@@ -263,17 +283,54 @@ The algorithm to calculate global triangles is as follows:
 \end{algorithmic}
 \end{algorithm}
 
+\subsubsection{Local triangle}
+The algorithm to calculate the local triangle is as follows.
+
+\paragraph{Math}
+$\Delta_{i}$ is the number of local triangles that node i participated in. The formula of local triangle count is based on the following theorem:
+\begin{equation}
+    \Delta_{j} = \frac{\sum_{k=1}^{i-1}u_{jk}^{2}\lambda_{k}^{3}}{2}
+\end{equation}
+
+
+\begin{algorithm}[!htbf]
+\caption{The local eigentriangle algorithm\cite{tsourakakis2008fast}}
+\begin{algorithmic}
+\REQUIRE Adjacency matrix $A(n \times n)$
+\REQUIRE Tolerance $tol$\\
+{\bf OUTPUT: } $\Delta'(G)$  per node triangle estimation
+\STATE $\langle \lambda_{1},\vec{u_{1}} \rangle \leftarrow LanczosMethod(A,1)$
+\STATE $\vec{\Lambda} \leftarrow [\lambda_{1}]$
+\STATE $\bigcup \leftarrow [\vec{u_{1}}]$
+\STATE $i \leftarrow 2$
+\REPEAT
+\STATE $\langle \lambda_{i},\vec{u_{i}} \rangle \leftarrow LanczosMethod(A,i)$
+\STATE $\vec{\Lambda} \leftarrow [\vec{\Lambda}\lambda_{i}]$
+\STATE $\bigcup \leftarrow [\bigcup \vec{u_{1}}]$
+\STATE $i \leftarrow i + 1$
+\UNTIL $0 \leq \frac{|\lambda_{i}^3|}{\Sigma_{j=1}^{i-1}\lambda_{j}^3} \leq tol$
+\FOR   {$j=1$ to $n$}
+\STATE $\bigtriangleup_{j} = \frac{\Sigma_{k=1}^{i-1}u_{jk}^2\lambda_{k}^3}{2}$
+\ENDFOR
+\STATE $\bigtriangleup(G)\leftarrow[\bigtriangleup_{1},\ldots,\bigtriangleup_{n}]$
+\RETURN $\bigtriangleup(G)$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
 \subsubsection{Idea of SQL implementation}
 We will call Lanczos to get the eigenvalues and eigenvectors of the graph, and sum up the number using SQL \emph{select}.
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Shortest Path}
 We adopt Dijkstra's shortest algorithm to compute shortest path from the source node. It works for directed weighted
 graph which has $O(|V| log |V| + |E|)$ time complexity. The psueudo code is listed in algorithm \ref{algo:dijkstra}.
 
-\begin{algorithm}
+\begin{algorithm}[!htbf]
 {\bf Input:} Source node and directed weighted graph. \\
 {\bf Output:} Shortest path of every node from source node. 
 \begin{algorithmic}
@@ -290,7 +347,7 @@ graph which has $O(|V| log |V| + |E|)$ time complexity. The psueudo code is list
     \STATE{visited[u] $\gets$ true}
     \FORALL{neighbour v of u}
         \STATE{alt $\gets$ dist[u] + dist\_between(u, v)}
-        \IF{alt < dist[v] \&\& !visited[v]} 
+        \IF{alt $<$ dist[v] \&\& !visited[v]} 
             \STATE{dist[v] $\gets$ alt} 
             \STATE{insert v into Q}
         \ENDIF

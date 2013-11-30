@@ -38,7 +38,7 @@ class ShortestPathTest(unittest.TestCase):
     def test_runtime(self):
         cur = self.conn.cursor()
         gname = "spath_graph"
-        generate_directed_graph(gname, 100000, self.conn)
+        generate_directed_graph(gname, 100, self.conn)
         print "graph builded"
         dijkstra("0", gname, "spath_result", "spath", self.conn)
         cur = self.conn.cursor()
