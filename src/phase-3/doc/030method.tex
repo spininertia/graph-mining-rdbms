@@ -67,7 +67,11 @@ Please refer to the code in {\bf Apppendix}.
 
 \subsection{Weakly connected components}
 In terms of the implementation of weakly connected components. We borrow the idea of HCC method from the "PEGASUS" paper.\cite{Kang09}
-The algorithm can be described as following:
+
+\subsubsection{Idea of SQL implementation}
+The algorithm can be described in algorithm \ref{algo:wcc}. The key step that updates the 
+component id to the minimum of its neghbors' is accomplished in SQL using join and group by
+clause.
 \begin{algorithm}
 \caption{Weakly Connected Component}
 \begin{algorithmic}
@@ -78,6 +82,7 @@ The algorithm can be described as following:
 \STATE{For each node, assign the minimum component id of its neighbors as the new componnet id of this node.}
 \UNTIL{Convergence}
 \end{algorithmic}
+\label{algo:wcc}
 \end{algorithm}
 After several rounds of iteration, the nodes in the same connected component will share the same component id.
 The number of iterations for convergence can be proved to be upper bounded by the diameter of the graph.
@@ -98,17 +103,17 @@ Given the above description of how to encode neighbors of a node, and the method
 \begin{algorithmic}
 \STATE{Bulk load graph into an edge table in database.}
 \STATE{Preprocess the edge table, add a self loop edge to every node in the graph.}
-\STATE{Intialize the vertex table, which contains node id, and a column of bitstring array, the bitstrings are initialized using the FM algorithm}
+\STATE{Initialize the vertex table, which contains node id, and a column of bitstring array, the bitstrings are initialized using the FM algorithm}
 \REPEAT
 \STATE{For every node update the bitstring according to formula: $b(h,i) = b(h-1,i) \quad BIT-OR \quad  {b(h-1,j)|(i,j)\in E}$. }
 \STATE{For every node, check whether the bitstrings is unchanged before and after updates, if it's not changed, output i as the radius for this node.}
-\UNTIL{The bitstrings of every node stablizes or it reaches the maximum rounds of iteration.}
+\UNTIL{The bitstrings of every node stabilizes or it reaches the maximum rounds of iteration.}
 \end{algorithmic}
 \label{radius:algo3}
 \end{algorithm}
 
-
-To make this algorithm possible in SQL, we defined some user defined functions:
+\subsubsection{Idea of SQL implementation}
+In our implementation of this algorithm in SQL, we defined some user defined functions in PostgreSQL. The key step of algorithm that updates the FM-bitstring array is accomplished by using aggBitOr in the join and group by clause. Specifically, we join the edge table and vertex table on dst id, group by src id, and then call the aggBitOr to update the fm string array for all nodes.
 \begin{description}
   \item[fmAssign:] Assign the k FM-bitstrings for a node.
   \item[bitOr:] Execute the OR operations between two bitstring arrays.
@@ -143,6 +148,9 @@ Given this power method, the implementation is pretty straightforward as describ
 \end{algorithmic}
 \label{bp:algo4}
 \end{algorithm}
+
+\subsubsection{Idea of SQL Implementation}
+The major computation involved is matrix vector multiplication, which is easy to implement in SQL using join and group by step.
 
 \subsubsection{SQL code}
 Please refer to the code in {\bf Apppendix}.
@@ -299,8 +307,11 @@ This is implemented purely in SQL. Just like ordinary C code, I have a table to 
 Please refer to the code in {\bf Apppendix}.
 
 \subsection{Minimum Spanning Tree}
-We use the classical Prim's algorithm for this additional task. We abandon the Kruskal's algorithm because the disjoint set is not easy to implement using SQL. The implementation can be described in algorithm \ref{prim:algo}.
+We use the classical Prim's algorithm for this additional task. We abandon the Kruskal's algorithm because the disjoint set is not easy to implement using SQL.
 
+\subsubsection{Idea of SQL implementation}
+The implementation in SQL can be described in algorithm \ref{algo:prim}.
+ 
 \begin{algorithm}
 {\bf Input:} Edge Table E of a undirected connected graph \\
 {\bf output:} Edge Table MST containing edges of the minimum spanning tree
@@ -313,7 +324,7 @@ We use the classical Prim's algorithm for this additional task. We abandon the K
 	\STATE Insert into N with the destination node of the edge selected in last step
 \ENDFOR
 \end{algorithmic}
-\label{prim:algo}
+\label{algo:prim}
 \end{algorithm}
 
 \subsubsection{SQL code}

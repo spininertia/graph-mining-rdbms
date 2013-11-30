@@ -12,8 +12,10 @@ def cc_init(conn, edge_table, target_table):
 	drop_if_exists(conn, "component")
 	drop_if_exists(conn, "component_tmp")
 	drop_if_exists(conn, target_table)
-	cur.execute("drop index if exists c_index")
-	cur.execute("drop index if exists ct_index")
+	# cur.execute("drop index if exists c_index")
+	# cur.execute("drop index if exists ct_index")
+	cur.execute("drop index if exists edge_src_index")
+	cur.execute("drop index if exists edge_dst_index")
 	cur.execute("create table component (nid int not null unique, cid int)")
 	cur.execute("create table component_tmp (nid int, cid int)")
 	cur.execute("create table %s (nid int, cid int)" % target_table)
@@ -24,10 +26,12 @@ def cc_init(conn, edge_table, target_table):
 		drop table component_tmp;
 		create table component_tmp (nid int, cid int);
 		insert into component_tmp (nid, cid) select nid, cid from component;
-		create index c_index on component (nid);
-		create index ct_index on component_tmp (nid);
-		""")
+		
+		create index edge_src_index on %s (src_id);
+		create index edge_dst_index on %s (dst_id);
+		""" % (edge_table, edge_table))
 	conn.commit()
+	print "initialized"
 	cur.close()
 
 def save_result(conn, target_table):
@@ -95,6 +99,12 @@ def summarize(conn, target_table):
 	max_cc = cur.fetchone()[0]
 	print "number of connected components:%d" % num_cc
 	print "largest connected components:%d vertices" % max_cc 
+	drop_if_exists(conn, "tmp")
+	cur.execute("select cnt, count(*) into tmp from (select count(*) as cnt from %s group by cid) as foo group by cnt order by cnt desc" % target_table)
+	print "size\tcount"
+	f = open(target_table + '.csv', 'w')
+	cur.copy_to(sys.stdout, 'tmp', sep = "\t")
+	cur.copy_to(f, 'tmp', sep = ",")
 	cur.close()
 
 def compute_cc(conn, edge_table, target_table):
@@ -103,7 +113,7 @@ def compute_cc(conn, edge_table, target_table):
 	diff = count_diff(conn)
 	iter = 1
 	while diff > 0:
-		print "interation %d %d" % (iter, diff)
+		print "iteration %d %d" % (iter, diff)
 		cc_assign(conn)
 		update(conn, edge_table)
 		diff = count_diff(conn)
