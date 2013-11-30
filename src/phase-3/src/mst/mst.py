@@ -9,11 +9,26 @@ def drop_if_exists(tbl_name, conn):
     cur.execute("drop table if exists %s" % tbl_name)
     conn.commit()
 
+def summarize(conn, tbl_name):
+	cur = conn.cursor()
+	cur.execute("select * from %s" % tbl_name)
+	tree = cur.fetchall()
+	print "=" * 30
+	print "edges in minimum spanning tree"
+	print "=" * 30
+	print "src_id\tdst_id\tweight"
+	for i in range(len(tree)):
+		src_id = tree[i][0]
+		dst_id = tree[i][1]
+		weight = tree[i][2]
+		print "%d\t%d\t%f" %(src_id, dst_id, weight)
+
 
 def mst(conn, edge_table, dataset):
 	"""
 	Prim's algorithm
 	"""
+	print "Calculating Minimum Spanning Tree"
 	cur = conn.cursor()
 	target_table = "mst_" + dataset
 	node_table = "node_mst"
@@ -40,6 +55,9 @@ def mst(conn, edge_table, dataset):
 		cur.execute('insert into %s select * from %s' % (target_table, tmp_table))
 		cur.execute('delete from %s' % tmp_table)
 		conn.commit()
+	summarize(conn, target_table)
+	print "done"
+
 
 if __name__ == "__main__":
 	conn = psycopg2.connect(database="mydb", host="127.0.0.1")

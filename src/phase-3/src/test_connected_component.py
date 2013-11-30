@@ -97,6 +97,6 @@ class ConnectedComponentTest(unittest.TestCase):
 		data_file = "../data/synthetic_cc.txt"
 		edge_table = "synthetic"
 		target_table = "cc_synthetic"
-		load_weighted_graph(edge_table, data_file, False, self.conn)
+		load_unweighted_graph(edge_table, data_file, False, self.conn, " ")
 		print "synthetic dataset.."
 		compute_cc(self.conn, edge_table, target_table)
