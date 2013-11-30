@@ -13,6 +13,33 @@ class PagerankTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+
+    def test_dummy_pagerank(self):
+        tbl_name = "task2_dummy"
+        result_tbl = "task2_dummy_result"
+        drop_if_exists(tbl_name, self.conn)
+        drop_if_exists(result_tbl, self.conn)
+        data = [[0,0,1,0,0,0,0],
+                [0,1,1,0,0,0,0],
+                [1,0,1,1,0,0,0],
+                [0,0,0,1,1,0,0],
+                [0,0,0,0,0,0,1],
+                [0,0,0,0,0,1,1],
+                [0,0,0,1,1,0,1]]
+        cur = self.conn.cursor()
+        cur.execute("create table %s (from_id int, to_id int)" % tbl_name)
+        for i in range(len(data)):
+            for j in range(len(data)):
+                if data[i][j] == 1:
+                    cur.execute("insert into %s values (%s, %s)" % (tbl_name, i, j))
+        print "Dummy build"
+        calculatepagerank(tbl_name, result_tbl, self.conn)
+        normalize_pagerank(result_tbl, self.conn)
+        cur = self.conn.cursor()
+        cur.execute("select * from %s order by node_id" % result_tbl)
+        r = cur.fetchall()
+        print r
+
     @unittest.skip("")
     def test_google_webgraph(self):
         """http://snap.stanford.edu/data/web-Google.html"""
