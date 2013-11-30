@@ -13,7 +13,6 @@ class EigenvalueTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip("")
     def test_ucidata(self):
         data_file = "data/ucidata-zachary.txt"
         gfile = "task5_ucidata"
@@ -104,5 +103,5 @@ class EigenvalueTest(unittest.TestCase):
         print "Dimension is %s" % dim
         for i in range(dim):
             cur.execute("insert into %s values (%s, %s, %s)" % (b, i, 0, 1.0 / float(dim)))
-        lanczos(gfile, b, dim, 20, self.conn)    
+        lanczos(gfile, b, dim, 10, self.conn)    
         drop_if_exists(b, self.conn)
