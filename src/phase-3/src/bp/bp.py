@@ -52,7 +52,7 @@ def vector_add(conn, m1, m2):
 	cur = conn.cursor()
 	#cur.execute('update %s set val = A.val + B.val from %s as A, %s as B where A.id = B.id' %(m1, m1, m2))
 	cur.execute('delete from tmp');
-	cur.execute('insert into tmp select A.val + B.val from %s as A, %s as B where A.id = B.id' % (m1, m2))
+	cur.execute('insert into tmp select A.id, A.val + B.val from %s as A, %s as B where A.id = B.id' % (m1, m2))
 	cur.execute('delete from %s' % m1)
 	cur.execute('insert into %s select * from tmp' % m1)
 	conn.commit()
@@ -91,10 +91,10 @@ def create_rnd_init(conn):
 		rnd_val float;
 		BEGIN
 			rnd_val = random();
-			if rnd_val > 0.75 then
-				retval = 0.5;
-			elsif rnd_val < 0.25 then
-				retval = -0.5;
+			if rnd_val > 0.95 then
+				retval = 0.001;
+			elsif rnd_val < 0.05 then
+				retval = -0.001;
 			end if;
 			return retval;
 		END;
@@ -125,42 +125,43 @@ def compute_bp(conn, edge_table, target_table, weighted = False):
 	create_rnd_init(conn);
 	cur = conn.cursor()
 	h = 0.002
-	a = 4 * (h ** 2) / (1 - 4 * h ** 2)
-	c = 2 * h / (1 - 4 * h ** 2)
+	a = 4.0 * (h ** 2) / (1 - 4 * h ** 2)
+	c = 2.0 * h / (1 - 4 * h ** 2)
 	W = "W"
-	W_new = "W_new"
+	#W_new = "W_new"
 	prior = "prior"
 	belief = "bp_" + target_table
 	belief_new = "belief_new"
 	degree_table = "degree_table"
 	out_degree(conn, edge_table, degree_table, weighted)
 	create_matrix(conn, W)
-	create_matrix(conn, W_new)
+	#create_matrix(conn, W_new)
 	create_vector(conn, belief)
 	create_vector(conn, belief_new)
 	create_vector(conn, prior)
 	create_vector(conn, 'tmp')
 	rand_init_matrix(conn, prior, edge_table)
 	if weighted == True:
-		cur.execute("insert into %s select src_id, dst_id, %f * weight from %s" % (W, c, edge_table))
+		cur.execute("insert into %s select src_id, dst_id, weight * %f from %s" % (W, c, edge_table))
 	else:
 		cur.execute("insert into %s select src_id, dst_id, %f from %s" % (W, c, edge_table))
 	conn.commit()
-
-	cur.execute("insert into %s select id, id, -%f * degree + 1 from %s" % (W, a, degree_table))
+	 
+	cur.execute("insert into %s select id, id, -%f * degree from %s" % (W, a, degree_table))
 	cur.execute("drop index if exists  w_index")
 	cur.execute("create index w_index on %s(col)" % W)
 	cur.execute("drop index if exists prior_index");
 	cur.execute("create index prior_index on %s(id)" % prior)
 	conn.commit()
 
+
 	print "initialized"
 	matrix_vector_multiply(conn, W, prior, belief)
 
-	max_iteration = 3	
+	max_iteration = 10	
 	for i in range(max_iteration):
 		print "iteration %d" % i
-		cur.execute("delete from %s" % W_new)
+		#cur.execute("delete from %s" % W_new)
 		matrix_vector_multiply(conn, W, belief, belief_new)
 		vector_add(conn, belief_new, prior)
 		if(is_stablized(conn, belief, belief_new)):

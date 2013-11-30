@@ -10,7 +10,7 @@ class BeliefPropagationTest(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_amazon(self):
 		"""http://snap.stanford.edu/data/com-Amazon.html"""
 		data_file = "../data/amazon.txt"
@@ -20,7 +20,7 @@ class BeliefPropagationTest(unittest.TestCase):
 		print "amazon.."
 		compute_bp(self.conn, edge_table, dataset)
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_soc_sign_epinions(self):
 		"""http://snap.stanford.edu/data/soc-sign-epinions.html"""
 		data_file = "../data/soc-sign-epinions.txt"
@@ -30,7 +30,7 @@ class BeliefPropagationTest(unittest.TestCase):
 		print "soc_sign_epinions.."
 		compute_bp(self.conn, edge_table, dataset)
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_email_EuAll(self):
 		"""http://snap.stanford.edu/data/email-EuAll.html"""
 		data_file = "../data/email-EuAll.txt"
@@ -41,7 +41,7 @@ class BeliefPropagationTest(unittest.TestCase):
 		compute_bp(self.conn, edge_table, dataset)
 
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_web_google(self):
 		"""http://snap.stanford.edu/data/web-Google.html"""
 		data_file = "../data/web_google.txt"
@@ -51,7 +51,7 @@ class BeliefPropagationTest(unittest.TestCase):
 		print "web google.."
 		compute_bp(self.conn, edge_table, dataset)
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_youtube(self):
 		"""http://snap.stanford.edu/data/com-Youtube.html"""
 		data_file = "../data/youtube.txt"
@@ -61,7 +61,7 @@ class BeliefPropagationTest(unittest.TestCase):
 		print "youtube.."
 		compute_bp(self.conn, edge_table, dataset)
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_dblp(self):
 		"""dblp"""
 		data_file = "../data/dblp.txt"
@@ -71,7 +71,7 @@ class BeliefPropagationTest(unittest.TestCase):
 		print "dblp.."
 		compute_bp(self.conn, edge_table, dataset)
 
-	#@unittest.skip("")
+	@unittest.skip("")
 	def test_synthetic(self):
 		"""test_synthetic"""
 		data_file = "../data/synthetic_bp.txt"
@@ -87,7 +87,7 @@ class BeliefPropagationTest(unittest.TestCase):
 		data_file = "../data/advogato.txt"
 		edge_table = "advogato"
 		dataset = "advogato"
-		load_weighted_graph(edge_table, data_file, False, self.conn, " ")
+		load_weighted_graph(edge_table, data_file, True, self.conn, " ")
 		print "advogato.."
 		compute_bp(self.conn, edge_table, dataset, True)
 

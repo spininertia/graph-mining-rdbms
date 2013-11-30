@@ -22,21 +22,21 @@ Youtube social network & 1134890 & 2987624 \\
 \label{t5:table1}
 \end{table}%
 
-Similar to semi-supervised learning, belief propagation algorithm require the graph to be partially labeled.  However, we don't have such information. Therefore, in this experiment, we randomly assign the prior belief for all nodes. Specifically, we randomly assign 25 percent of the nodes with positive label, i.e. positive prior belief, and 25 percent of other nodes with negative label, i.e. negative prior belief, and the rest with zero belief, meaning that we don't have prior knowledge for these nodes. Then we conduct FABP algorithm on these datasets, the result are shown in Table \ref{t5:table2} .
+Similar to semi-supervised learning, belief propagation algorithm require the graph to be partially labeled.  However, we don't have such information. Therefore, in this experiment, we randomly assign the prior belief for all nodes. Specifically, we randomly assign 5\% of the nodes with positive label, i.e. positive prior belief(0.001), and  5\% of other nodes with negative label, i.e. negative prior belief(-0.001), and the rest with zero belief, meaning that we don't have prior knowledge for these nodes. Then we conduct FABP algorithm on these datasets, the result are shown in Table \ref{t5:table2} .
 
 \begin{table}[!htbf]
 \caption{BP Statistics}
 \begin{center}
 \begin{tabular}{|c|c|c|c|}
 \hline \hline
-dataset & positively labeled & negatively labeled & non labeled  \\
+dataset & positively labeled & negatively labeled & unlabeled  \\
 \hline
-DBLP co-authorship network & 134139  & 136636  & 46305 \\
-Epinions social network & 53968  & 52796  & 25064 \\
-Amazon product co-purchasing network & 143796 & 144796 & 46271 \\
-EU email communication network & 100619 & 109674 & 54921 \\
-Google web graph & 379568 & 376325 & 119820 \\
-Youtube social network & 450084 & 457956 & 226850 \\
+DBLP co-authorship network & 164103  & 144259  & 8718 \\
+Epinions social network & 22334  & 22575  & 86919 \\
+Amazon product co-purchasing network & 158837 & 160524 & 15502 \\
+EU email communication network & 127481 & 109616 & 28117 \\
+Google web graph & 385277 & 389975 & 100461 \\
+Youtube social network & 584422 & 508628 & 41840 \\
 \hline
 \end{tabular}
 \end{center}
@@ -47,11 +47,11 @@ Youtube social network & 450084 & 457956 & 226850 \\
 \subsubsection{Observation}
 1. By applying Belief Propagation algorithm on these graphs, most of the unlabeled nodes are successfully assigned either positive or negative belief.
 
-2. We find that for some graphs, larger proportions of nodes gets labeled than other graph. For example, in DBLP co-authorship network and amazon product co-purchasing network,  about 85\%  of the nodes get labeled. While for like Epinions social network and EU emali communication network, only 75\% of the nodes get labeled. Once again, we look back at the connectivity of the graph to find the probable cause. We observed that, graph that is well connected is easier to get more nodes assigned with labels. This observation makes sense in that 'beliefs' can be easier to propagate in well connected graphs than those grape with many disconnected components.
+2. We find that for some graphs, larger proportions of nodes gets labeled than other graph. For example, in DBLP co-authorship network and amazon product co-purchasing network,  about 95\%  of the nodes get labeled using only 10\% labeled nodes. While for like Epinions social network , only about 30\% of the nodes get labeled. Once again, we look back at the connectivity of the graph to find the probable cause. We observed that, graph that is well connected is easier to get more nodes assigned with labels. This observation makes sense in that 'beliefs' can be easier to propagate in well connected graphs than those grape with many disconnected components.
 
 \subsubsection{Proof of Correctness}
-As mentioned it the previous section, we don't have any labels for these large datasets, therefore we verify the result according to statistics we get in the last section. We can see that the proportion with positive labels and negative labels are approximately same, which resembles the label distribution with our prior belief. 
-
+As mentioned in the previous section, we don't have any labels for these large datasets, therefore we verify the result according to statistics we got in the last section. We can see that the proportion with positive labels and negative labels are approximately same, which resembles the label distribution with our prior belief. Also, we successfully inferenced the belief of other nodes using only 10\% labeled nodes.
+In order to verify the accuracy of our algorithm, we run FABP on small matrix we generate. In essence, the FABP tries to solve a linear system $(I - W)x = prior$, therefore we test our FABP against the linear system solver in MATLAB(function linsolve). And the two get nearly identical result(with error less than 0.01) in solving some toy linear systems consisting of 2 by 2 matrix. This demonstrates the correctness  of our algorithm.
 
 
 
