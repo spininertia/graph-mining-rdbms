@@ -1,5 +1,5 @@
 \subsection{Task 7: Triangle Counting}
-According to the algorithms in \cite{tsourakakis2008fast}, we know that the number of triangles in a network is propotional to the sum of eigenvalue of its adjency matrix, which is $\frac{\sum_{i}\lambda_{i}^{3}}{6}$. Figure \ref{t7:timedata} shows the running time of global triangle counting with regards to the size of graph. We can see that as the size of graph increases, the running time also grows nearly linearly with the size. For the largest graph, which is Roadnet-PA, it runs nearly for an hour to complete. However, the predicted result for Roadnet-PA is unsatisfactory. We conduct both global and local triangle counting, all the data is listed as follows.
+According to the algorithms in \cite{tsourakakis2008fast}, we know that the number of triangles in a network is proportional to the sum of eigenvalue of its adjacency matrix, which is $\frac{\sum_{i}\lambda_{i}^{3}}{6}$. Figure \ref{t7:timedata} shows the running time of global triangle counting with regards to the size of graph. We can see that as the size of graph increases, the running time also grows nearly linearly with the size. For the largest graph, which is Roadnet-PA, it runs nearly for an hour to complete. However, the predicted result for Roadnet-PA is unsatisfactory. We conduct both global and local triangle counting, all the data is listed as follows.
 
 \subsubsection{Detailed Plots}
 {\bf Proof of Correctness: } In this experiment, we run our algorithm on the dataset, and verify that the predicted number of triangles is a good approximate of the true count. The full result is in Table \ref{t7:globalpredict}. As we can see, most of the result is near to each other. So we are aure about the correctness of the implementation. 
@@ -68,7 +68,7 @@ Table \ref{t7:timedata} lists run time of global triangle counting. Figure \ref{
 We plot the rank-frequency plot of local triangle counting, that x-axis represent the rank of the count of local triangle, y-axis represents the number of local triangles at that rank. 
 
 \paragraph{Amazon}
-Figure \ref{t7:amazon} plots the rank-frquency of Amazon. We can observe from the figure that it follows {\bf power law}. 
+Figure \ref{t7:amazon} plots the rank-frequency of Amazon. We can observe from the figure that it follows {\bf power law}. 
 \begin{figure}[!htbf]
 \begin{center}
 \begin{tabular}{c}
@@ -80,7 +80,7 @@ Figure \ref{t7:amazon} plots the rank-frquency of Amazon. We can observe from th
 \end{figure}
 
 \paragraph{Enron mail}
-Figure \ref{t7:enron} plots the rank-frquency of Enron Mail. We can observe from the figure that it follows {\bf power law}. 
+Figure \ref{t7:enron} plots the rank-frequency of Enron Mail. We can observe from the figure that it follows {\bf power law}. 
 \begin{figure}[!htbf]
 \begin{center}
 \begin{tabular}{c}
@@ -92,7 +92,7 @@ Figure \ref{t7:enron} plots the rank-frquency of Enron Mail. We can observe from
 \end{figure}
 
 \paragraph{Slashdot}
-Figure \ref{t7:slashdot} plots the rank-frquency of Slashdot. We can observe from the figure that it follows {\bf power law}. 
+Figure \ref{t7:slashdot} plots the rank-frequency of Slashdot. We can observe from the figure that it follows {\bf power law}. 
 \begin{figure}[!htbf]
 \begin{center}
 \begin{tabular}{c}
@@ -104,7 +104,7 @@ Figure \ref{t7:slashdot} plots the rank-frquency of Slashdot. We can observe fro
 \end{figure}
 
 \paragraph{wiki-Vote}
-Figure \ref{t7:wikivote} plots the rank-frquency of wiki-Vote. We can observe from the figure that it follows {\bf power law}. 
+Figure \ref{t7:wikivote} plots the rank-frequency of wiki-Vote. We can observe from the figure that it follows {\bf power law}. 
 \begin{figure}[!htbf]
 \begin{center}
 \begin{tabular}{c}
@@ -116,7 +116,7 @@ Figure \ref{t7:wikivote} plots the rank-frquency of wiki-Vote. We can observe fr
 \end{figure}
 
 \paragraph{Youtube}
-Figure \ref{t7:youtube} plots the rank-frquency of Youtube. We can observe from the figure that it follows {\bf power law}. 
+Figure \ref{t7:youtube} plots the rank-frequency of Youtube. We can observe from the figure that it follows {\bf power law}. 
 \begin{figure}[!htbf]
 \begin{center}
 \begin{tabular}{c}

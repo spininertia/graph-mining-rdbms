@@ -15,7 +15,7 @@ The following are the algorithms we plan to implement. The reason we choose them
 \end{description}
 
 \subsection{Degree Distribution}
-We employ Postgres's group by command according to either source node or target node to count the degree distribution according to each node. The psueudo code is in Algorithm \ref{algo1:1}, \ref{algo1:2}.
+We employ Postgres's group by command according to either source node or target node to count the degree distribution according to each node. The pseudo code is in Algorithm \ref{algo1:1}, \ref{algo1:2}.
 
 \begin{algorithm}[!htbf]
 \caption{Out Degree distribution}
@@ -45,7 +45,7 @@ The only operation we need from SQL is its group by clause. We can aggregate the
 Please refer to the code in {\bf Appendix}.
 
 \subsection{Pagerank}
-The algorithm of pagerank is Power method. We do matrix multiplication continuously until the change in pagerank is small. The most important euqation for calculating pagerank is as follows:
+The algorithm of pagerank is Power method. We do matrix multiplication continuously until the change in pagerank is small. The most important equation for calculating pagerank is as follows:
 \begin{equation}
   PR(i) = \alpha \frac{1}{N} + (1 - \alpha) \sum_{j \in InNeighbor(i)} \frac{PR(j)}{OutDegree(j)}
 \end{equation}
@@ -73,7 +73,7 @@ The implementation consists of several components.
 First, we have a \emph{graph} which has the schema \emph{(from\_id, to\_id, weight)}. Then we will build a \emph{rank} table has the schema \emph{(node\_id, rank)}, all the rank are initialized randomly. After we enter loop, we will do a large matrix vector multiplication, which is implemented by SQL \emph{select} and \emph{join}. The new pagerank is stored in a temporary table. After the loop is over, we calclate the updates to every node, if the change is little, then abort.
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Weakly connected components}
 In terms of the implementation of weakly connected components. We borrow the idea of HCC method from the "PEGASUS" paper.\cite{Kang09}
@@ -84,16 +84,16 @@ of $v_i$ is set to its own node id. For each iteration, each node sends its curr
 
 \subsubsection{Idea of SQL implementation}
 The algorithm can be described in algorithm \ref{algo:wcc}. The key step that updates the 
-component id to the minimum of its neghbors' is accomplished in SQL using join and group by
+component id to the minimum of its neighbors' is accomplished in SQL using join and group by
 clause.
 \begin{algorithm}
 \caption{Weakly Connected Component}
 \begin{algorithmic}
 \STATE{Bulk load graph into an edge table in database.}
 \STATE{Create a component table, where each entry contains a node id, and the component id.}
-\STATE{Initialize the component table where component id equls node id.}
+\STATE{Initialize the component table where component id equals node id.}
 \REPEAT
-\STATE{For each node, assign the minimum component id of its neighbors as the new componnet id of this node.}
+\STATE{For each node, assign the minimum component id of its neighbors as the new component id of this node.}
 \UNTIL{Convergence}
 \end{algorithmic}
 \label{algo:wcc}
@@ -102,7 +102,7 @@ After several rounds of iteration, the nodes in the same connected component wil
 The number of iterations for convergence can be proved to be upper bounded by the diameter of the graph.
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Radius of every node}
 We discard the traditional algorithm because it is extremely infeasible for large graphs, since it uses a set to record every neghbors within n hops for a node during iteration, which requires a O($n^2$) space.
@@ -150,7 +150,7 @@ fmSize & Estimate the size of a set encoded by FM-bitstring \\
 
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Eigenvalue}
 We adopt the method propose in \cite{kang2011spectral}. There are several methods to solve part of eigenvalue computation problems, for instance, power method\cite{langville2004deeper}. While it has the limitation that it can only extract the eigenvector with biggest eigenvalue. Several method have been proposed to extract top k eigenvectors simultaneously. The approach we use is Lanczos algorithm\cite{lanczos1950iteration}. The general idea about this algorithm is that instead of directly work on an $N \times N$ matrix, we first generate a skinny $N \times m$ matrix(M $\ll$ N). Then it computes a small $M \times M$ dense matrix which has good approximation to the eigenvalues of the original matrix. In this case, we directly apply quadratic algorithm to top-k eigenvalues. Notice that k $<$ M.
@@ -236,7 +236,7 @@ Since the algorithm of Lanczos algorithm is matrix calculation intensive, so we 
 \end{description}
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Belief Propagation}
 For belief propagation, we use the fabp method proposed in paper\cite{DBLP:conf/pkdd/KoutraKKCPF11}.
@@ -265,7 +265,7 @@ Given this power method, the implementation is pretty straightforward as describ
 \end{algorithm}
 
 \subsubsection{Idea of SQL Implementation}
-The major computation involved is matrix vector multiplication, which is easy to implement in SQL using join and group by step. Furthermore we've wraped all the matrix related operation in our host language Python, as described in previous task.
+The major computation involved is matrix vector multiplication, which is easy to implement in SQL using join and group by step. Furthermore we've wrapped all the matrix related operation in our host language Python, as described in previous task.
 
 \subsubsection{SQL code}
 Please refer to the code in {\bf Appendix}.
@@ -285,8 +285,8 @@ The formula to count global triangle is sum of cubes of eigenvalues, which is:
 
 \begin{algorithm}[!htbf]
 \caption{The EigenTriangle algorithm}
-{\bf Require: } Adjecency matrix A (n X n)\\
-{\bf Require: } Tolerence \emph{tol}\\
+{\bf Require: } Adjacency matrix A (n X n)\\
+{\bf Require: } Tolerance \emph{tol}\\
 {\bf Output: } $\bigtriangleup'(G)$ global triangle estimation
 \begin{algorithmic}
 \STATE{$\lambda_{i} \leftarrow LanczosMethod(A, 1)$}
@@ -347,7 +347,11 @@ Please refer to the code in {\bf Appendix}.
 
 \subsection{Shortest Path}
 We adopt Dijkstra's shortest algorithm to compute shortest path from the source node. It works for directed weighted
-graph which has $O(|V| log |V| + |E|)$ time complexity. The psueudo code is listed in algorithm \ref{algo:dijkstra}.
+graph which has $O(|V| log |V| + |E|)$ time complexity. The pseudo code is listed in algorithm \ref{algo:dijkstra}.
+
+\subsubsection{Math}
+The core idea of Dijkstra's idea is that it greedily select a candidate node which has already obtained its minimum distance, then update its neighbors' current 
+best distance. 
 
 \begin{algorithm}[!htbf]
 {\bf Input:} Source node and directed weighted graph. \\
@@ -380,7 +384,7 @@ graph which has $O(|V| log |V| + |E|)$ time complexity. The psueudo code is list
 This is implemented purely in SQL. Just like ordinary C code, I have a table to record the current status(visited, distance) of each node, and update one node at a time. 
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 \subsection{Minimum Spanning Tree}
 We use the classical Prim's algorithm for this additional task. We abandon the Kruskal's algorithm because the disjoint set is not easy to implement using SQL.
@@ -408,7 +412,7 @@ The implementation in SQL can be described in algorithm \ref{algo:prim}.
 \end{algorithm}
 
 \subsubsection{SQL code}
-Please refer to the code in {\bf Apppendix}.
+Please refer to the code in {\bf Appendix}.
 
 
 

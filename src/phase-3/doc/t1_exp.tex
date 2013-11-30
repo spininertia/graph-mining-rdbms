@@ -16,9 +16,9 @@ We conduct 5 experiments on large scale graph data(all with more than 1 million 
 \end{center}
 
 \subsubsection{Detailed Plots}
-Following(Figure \ref{t1:plot}) are the rank-frequency plots of each dataset, (a)(b) shows the in degree and out degree out Wikitalk. (c) is Roadnet-Ca. (d) is Roadnet-PA. (e) is Roadnet-TX. (f) is Youtube. 
+Following are the rank-frequency plots of each dataset, (a)(b) shows the in degree and out degree out Wikitalk. (c) is Roadnet-Ca. (d) is Roadnet-PA. (e) is Roadnet-TX. (f) is Youtube. 
 
-{\bf Proof of Correctness:} For each dataset, we compare the plot with its original groundtruth plot if it has.\footnote{Stanford SNAP does not have degree distribution, KONECT has degress distribution}. They are almost the same. 
+{\bf Proof of Correctness:} For each dataset, we compare the plot with its original ground truth plot if it has.\footnote{Stanford SNAP does not have degree distribution, KONECT has degress distribution}. They are almost the same. 
 
 \paragraph{Wiki-Talk}
 In the wiki-talk graph, it's directed. Each node represents a user, and an edge represents a user at least edited another user's talk page. Figure \ref{t1:wiki} shows the in and out degree of this dataset. We don't have official degree distribution plot for this dataset. We can observe {\bf power law} from this plot. 
@@ -50,7 +50,7 @@ Roadnet-CA is un undirected graph. Each node represents an intersection of road 
 
 
 \paragraph{Roadnet-TX}
-Roadnet-TX is un undirected graph. Each node represents an intersection of road and edge is the road segments between two road intersections. Figure \ref{t1:tx}(a) shows our plot of degree distribution, Figure \ref{t1:tx}(b) is the original degree distribution of the dataset. We can see that they are the same. There is no obvious power law.
+Roadnet-TX is an undirected graph. Each node represents an intersection of road and edge is the road segments between two road intersections. Figure \ref{t1:tx}(a) shows our plot of degree distribution, Figure \ref{t1:tx}(b) is the original degree distribution of the dataset. We can see that they are the same. There is no obvious power law.
 \begin{figure}[!htbf]
 \begin{center}
 \begin{tabular}{c c}
