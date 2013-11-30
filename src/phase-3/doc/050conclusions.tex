@@ -20,11 +20,15 @@ explored and solved the following problems:
     this is not a general rule, for instance, Roadnet dataset doest not show power law.
     \item For task 2, we calculate the pagerank of each node in a graph, namely the importance of each
     node. By visualize the pagerank distribution in a rank-frequency plot, we again observe {\bf power law}.
-    \item For task 3.
-    \item For task 4.
+    \item For task 3, we compute the weakly connected components for a graph. By observing the plot, we find
+    that there is a Giant Connected Component(GCC) which contains the majority of nodes in a graph. And the frequency-size 
+    plot exhibits {\bf power law}.
+    \item For task 4, we calculate the radius for every node in a graph using an approximate algorithm.
+    By visualizing the result as radius plot, we find that most graphs has a {\bf single-modal} or {\bf bi-modal} radius distribution. 
     \item For task 5. We tackle the problem of calculating eigenvalue of an adjacent matrix by Lanczos mathod. We 
     build a Python matrix operation library which wraps low level linear algebra operations of SQL. 
-    \item For task 6.
+    \item For task 6. We implement the belief propagation using FABP algorithm. By conducting experiments on large datasets,
+    we successfully perform {\bf semi-supervised learning} using partially available labels to inference the labels of other nodes in the graph. 
     \item For task 7. We deal with the problem of count triangle(global or local) in a graph by calculating the
     eigenvalue of the adjacent matrix. Through the rank-frequency plot of local triangle distribution, we again
     observe {\bf power law}.
