@@ -89,6 +89,14 @@ def vector_length(tbl_name, conn):
     cur.execute("select sqrt(sum(power(value, 2))) from %s" % tbl_name)
     return cur.fetchone()[0]
 
+def rank_length(tbl_name, conn):
+    """
+    normalization length
+    """
+    cur = conn.cursor()
+    cur.execute("select sqrt(sum(power(rank, 2))) from %s" % tbl_name)
+    return cur.fetchone()[0]    
+
 def vector_dot_product(a, b, conn):
     """
     a .X b
@@ -145,6 +153,15 @@ def normalize_vector(tbl_name, conn):
     l = vector_length(tbl_name, conn)
     cur = conn.cursor()
     cur.execute("update %s set value = value / %s" % (tbl_name, l))
+    conn.commit()
+
+def normalize_pagerank(tbl_name, conn):
+    """
+    normalized pagerank
+    """
+    l = rank_length(tbl_name, conn)
+    cur = conn.cursor()
+    cur.execute("update %s set rank = rank / %s" % (tbl_name, l))
     conn.commit()
 
 def normalize_column(tbl_name, col, conn):
