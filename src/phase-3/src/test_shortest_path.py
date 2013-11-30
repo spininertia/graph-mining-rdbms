@@ -4,6 +4,7 @@ import psycopg2
 import unittest
 from common.basic_operation import *
 from spath.dijkstra import *
+from graph_generator import *
 
 class ShortestPathTest(unittest.TestCase):
     def setUp(self):
@@ -13,6 +14,7 @@ class ShortestPathTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @unittest.skip("")
     def test_dummydata(self):
         cur = self.conn.cursor()
         gname = "spath_graph"
@@ -32,3 +34,12 @@ class ShortestPathTest(unittest.TestCase):
         print "Shortest Path result"
         for r in cur.fetchall():
             print r
+
+    def test_runtime(self):
+        cur = self.conn.cursor()
+        gname = "spath_graph"
+        generate_directed_graph(gname, 10000, self.conn)
+        dijkstra("0", gname, "spath_result", "spath", self.conn)
+        cur = self.conn.cursor()
+        cur.execute("select * from spath_result")
+        print "Shortest Path result"
