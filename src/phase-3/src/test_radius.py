@@ -42,7 +42,7 @@ class RadiusTest(unittest.TestCase):
 		print "email_EuAll.."
 		compute_radius(self.conn, edge_table, dataset, 8)
 
-	#@unittest.skip("")
+	@unittest.skip("")
 	def test_web_google(self):
 		"""http://snap.stanford.edu/data/web-Google.html"""
 		data_file = "../data/web_google.txt"
@@ -72,10 +72,10 @@ class RadiusTest(unittest.TestCase):
 		print "dblp.."
 		compute_radius(self.conn, edge_table, dataset, 1)
 
-	@unittest.skip("")
+	#@unittest.skip("")
 	def test_synthetic(self):
 		"""test_synthetic"""
-		data_file = "../data/synthetic.txt"
+		data_file = "../data/synthetic_radius.txt"
 		edge_table = "synthetic"
 		dataset = "synthetic"
 		load_unweighted_graph(edge_table, data_file, True, self.conn, " ")

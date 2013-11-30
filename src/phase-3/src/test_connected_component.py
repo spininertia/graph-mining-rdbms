@@ -10,7 +10,7 @@ class ConnectedComponentTest(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	#@unittest.skip("")
+	@unittest.skip("")
 	def test_trec_wt10(self):
 		"""http://konect.uni-koblenz.de/networks/trec-wt10g"""
 		data_file = "../data/trec_wt10.txt"
@@ -90,4 +90,13 @@ class ConnectedComponentTest(unittest.TestCase):
 		target_table = "cc_soc_sign_epinions"
 		load_weighted_graph(edge_table, data_file, False, self.conn)
 		print "soc_sign_epinions.."
+		compute_cc(self.conn, edge_table, target_table)
+
+	def test_synthetic(self):
+		"""synthetic toy dataset"""
+		data_file = "../data/synthetic_cc.txt"
+		edge_table = "synthetic"
+		target_table = "cc_synthetic"
+		load_weighted_graph(edge_table, data_file, False, self.conn)
+		print "synthetic dataset.."
 		compute_cc(self.conn, edge_table, target_table)

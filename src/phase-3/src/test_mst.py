@@ -14,6 +14,6 @@ class MinimumSpanningTreeTest(unittest.TestCase):
   def test_runtime(self):
     cur = self.conn.cursor()
     gname = "mst_graph"
-    generate_undirected_graph(gname, 5000, self.conn)
+    generate_undirected_graph(gname, 500, self.conn)
     print "graph builded"
     mst(self.conn, gname, gname)		
