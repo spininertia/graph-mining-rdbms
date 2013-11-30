@@ -23,7 +23,7 @@ def load_unweighted_graph(tbl_name, filename, doreverse, conn, separator = "\t")
     with open(filename) as f:
         cur.copy_from(f, tbl_name, columns=('src_id', 'dst_id'), sep = separator)
     if doreverse:
-        cur.execute("insert into %s select dst_id, src_id from %s" % (tbl_name, tbl_name))
+        cur.execute("insert into %s ((select dst_id, src_id from %s) except (select src_id, dst_id from %s))" % (tbl_name, tbl_name, tbl_name))
     conn.commit()  
 
 def load_weighted_graph(tbl_name, filename, doreverse, conn, separator = "\t"):
@@ -35,7 +35,7 @@ def load_weighted_graph(tbl_name, filename, doreverse, conn, separator = "\t"):
     with open(filename) as f:
         cur.copy_from(f, tbl_name, columns=('src_id', 'dst_id', 'weight'), sep = separator)
     if doreverse:
-        cur.execute("insert into %s select dst_id, src_id from %s" % (tbl_name, tbl_name))
+        cur.execute("insert into %s ((select dst_id, src_id, weight from %s) except (select src_id, dst_id, weight from %s))" % (tbl_name, tbl_name, tbl_name))
     conn.commit()  
 
 def convert_matrix_from_graph():
