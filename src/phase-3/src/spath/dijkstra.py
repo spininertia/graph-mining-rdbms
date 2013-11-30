@@ -28,9 +28,14 @@ def dijkstra(start, graph, result, stamp, conn):
         cur.execute("insert into %s values (%s, %s, '%s')" % (distance, i[0], 9999999999, 'f'))
     # make start point best
     cur.execute("update %s set distance = 0 where nodeid = %s" % (distance, start))
-    for i in range(len(ids)):
+    cur.execute("create index nodeindex on %s (nodeid)" % (distance))
+    for i in range(len(ids)):        
         cur.execute("select nodeid, distance from %s where mark = 'f' order by distance asc limit 1" % distance)
         candidate = cur.fetchone()
+        if candidate[1] == 9999999999:
+            break
+        if i % 1000 == 0:
+            print i, candidate[1]
         cur.execute("update %s set mark = 't' where nodeid = %s" % (distance, candidate[0]))
         cur.execute("select to_id, value from %s,%s where from_id = %s and nodeid = to_id and mark = 'f'" % (distance, graph, candidate[0]))
         neighbours = cur.fetchall()
