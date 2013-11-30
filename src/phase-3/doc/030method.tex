@@ -17,7 +17,7 @@ The following are the algorithms we plan to implement. The reason we choose them
 \subsection{Degree Distribution}
 We employ Postgres's group by command according to either source node or target node to count the degree distribution according to each node. The psueudo code is in Algorithm \ref{algo1:1}, \ref{algo1:2}.
 
-\begin{algorithm}
+\begin{algorithm}[!htbf]
 \caption{Out Degree distribution}
 \begin{algorithmic}
 \STATE{Group edges according to source node's id}
@@ -26,7 +26,7 @@ We employ Postgres's group by command according to either source node or target 
 \label{algo1:1}
 \end{algorithm}
 
-\begin{algorithm}
+\begin{algorithm}[!htbf]
 \caption{In Degree distribution}
 \begin{algorithmic}
 \STATE{Group edges according to target node's id}
@@ -78,6 +78,10 @@ Please refer to the code in {\bf Apppendix}.
 \subsection{Weakly connected components}
 In terms of the implementation of weakly connected components. We borrow the idea of HCC method from the "PEGASUS" paper.\cite{Kang09}
 
+\subsubsection{method}
+The key idea of this algorithm is that for every node $v_i$ in the graph, we maintain a component id $c_i^h$ which is the minimum node id within $h$ hops from $v_i$. Initially, $c_i^h$
+of $v_i$ is set to its own node id. For each iteration, each node sends its current component id to its neighbors. Then $c_i^{h+1}$ is set to the minimum value among its current component id and the received component ids from its neighbors. Finally, when the update converges, all nodes in the same connected component will share the same component id. 
+
 \subsubsection{Idea of SQL implementation}
 The algorithm can be described in algorithm \ref{algo:wcc}. The key step that updates the 
 component id to the minimum of its neghbors' is accomplished in SQL using join and group by
@@ -102,6 +106,7 @@ Please refer to the code in {\bf Apppendix}.
 
 \subsection{Radius of every node}
 We discard the traditional algorithm because it is extremely infeasible for large graphs, since it uses a set to record every neghbors within n hops for a node during iteration, which requires a O($n^2$) space.
+\subsubsection{method}
 Since the exact algorithm is hopeless, we use the approximation algorithm described in "HADI" paper\cite{DBLP:journals/tkdd/KangTAFL11} instead. Specifically, we use the Flajolet-Martin algorithm for counting the number of distinct members in a multiset. It is guaranteed to give an unbiased estimate and a tight O($log(N)$) bound for space complexity. The basic idea of Floajolet-Martin algorthm is to use a bitstrings of length $L$ to encode the set. For each element to add, we randomly pick up a index according to a specified distribution, and assign BITMAP[index] to 1. Following this procedure to add element, the size of the final set can be estimated by $\frac{1}{\phi} 2^{\frac{1}{k}\sum_{i=1}^k R_i}$, where $\phi$ = 0.77351, $R_i$ denotes the index of the leftmost 0 in the the $k$th bitstring.
 
 In our proposed method for computing radius of every node, we use the Flajolet-Martin(FM) bitstrings to encode the neighbors of every node. Formally, we use $k$ FM-bitstrings $b(h, i)$ to represent the set of neighbor nodes reachable from $node_i$ within h hops. And for each iteration, we use the following way to update each FM-bitstring:$$b(h,i) = b(h-1,i)  \quad BIT-OR \quad  {b(h-1,j)|(i,j)\in E}$$
@@ -123,47 +128,29 @@ Given the above description of how to encode neighbors of a node, and the method
 \end{algorithm}
 
 \subsubsection{Idea of SQL implementation}
-In our implementation of this algorithm in SQL, we defined some user defined functions in PostgreSQL. The key step of algorithm that updates the FM-bitstring array is accomplished by using aggBitOr in the join and group by clause. Specifically, we join the edge table and vertex table on dst id, group by src id, and then call the aggBitOr to update the fm string array for all nodes.
-\begin{description}
-  \item[fmAssign:] Assign the k FM-bitstrings for a node.
-  \item[bitOr:] Execute the OR operations between two bitstring arrays.
-  \item[aggBitOr:] Aggregate function for bitOr.
-  \item[fmSize:] Estimate the size of a set encoded by FM-bitstring.
-\end{description}
+In order to store the fm-string array in the table, we use the array type which is supported by PostgreSQL. To initialize the fm string and update the fm string array, we defined some user defined functions in PostgreSQL. The key step of algorithm that updates the FM-bitstring array is accomplished by using aggBitOr in the join and group by clause. Specifically, we join the edge table and vertex table on dst id, group by src id, and then call the aggBitOr to update the fm string array for all nodes. We summarize the user defined functions in Table \ref{table:radius}.
+
+\begin{table}[[!htbf]
+\caption{User defined functions for task 4}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline \hline
+function name & description \\
+\hline
+fmAssign & Assign the k FM-bitstrings for a node \\
+bit-or & Execute the OR operations between two bitstring arrays \\
+aggBitOr & Aggregate function for bit-or \\
+fmSize & Estimate the size of a set encoded by FM-bitstring \\
+\hline
+
+\end{tabular}
+\end{center}
+\label{table:radius}
+\end{table}%
+
 
 \subsubsection{SQL code}
 Please refer to the code in {\bf Apppendix}.
-
-
-\subsection{Belief Propagation}
-For belief propagation, we use the fabp method proposed in paper\cite{DBLP:conf/pkdd/KoutraKKCPF11}.
-It can be shown that the solution of belief propagation can be approximated by the linear system:$$[\mathbf{I}	 + a\mathbf{D} - c\mathbf{A}]\mathbf{b_h} = \mathbf{\phi_h}$$ 
-where $\mathbf{A}$ is the n by n symmetric adjacency matrix, $\mathbf{D}$ is the diagonal matrix of degrees, $b_h$ corresponds to the vector of final beliefs for each node, $\phi_h$ is prior belief vector, and $h_h$ is the homophily factor,  $a = 4h_h^2/(1 - h_h^2)$ and $c = 2h_h / (1-4h_h^2)$.
-
-To solve this linear system, we can see :$\mathbf{I} + a\mathbf{D} - c\mathbf{A}$ as the form $\mathbf{I} - \mathbf{W}$, where $\mathbf{W} = -a\mathbf{D} + c\mathbf{A}$, and using the expansion:$$(\mathbf{I} - \mathbf{W})^{-1} = \mathbf{I} + \mathbf{W} + \mathbf{W}^2 + \mathbf{W}^3 + ...$$
-
-and the solution of the linear system is given by the formula:
-$$\mathbf{b_h} = (\mathbf{I} - \mathbf{W}^{-1})\mathbf{\phi_h} =\mathbf{\phi_h}  + \mathbf{\phi_h} \mathbf{W} + \mathbf{\phi_h} \mathbf{W}^2 + \mathbf{\phi_h} \mathbf{W}^3 + ...$$
-
-Given this power method, the implementation is pretty straightforward as described in algorithm \ref{bp:algo4}.
-\begin{algorithm}
-\caption{Belief Propagation}
-\begin{algorithmic}
-\STATE{Bulk load graph into an edge table in database.}
-\STATE{Initialize $h_h = 0.001 $}
-\STATE{Initialize the initial belief of every node as prior belief}
-\REPEAT
-\STATE{Update the belief of node by $b_h(i) = b_h(i-1)\mathbf{W} + \mathbf{\phi_h}$ }
-\UNTIL{Convergence}
-\end{algorithmic}
-\label{bp:algo4}
-\end{algorithm}
-
-\subsubsection{Idea of SQL Implementation}
-The major computation involved is matrix vector multiplication, which is easy to implement in SQL using join and group by step.
-
-\subsubsection{SQL code}
-Please refer to the code in {\bf Appendix}.
 
 \subsection{Eigenvalue}
 We adopt the method propose in \cite{kang2011spectral}. There are several methods to solve part of eigenvalue computation problems, for instance, power method\cite{langville2004deeper}. While it has the limitation that it can only extract the eigenvector with biggest eigenvalue. Several method have been proposed to extract top k eigenvectors simultaneously. The approach we use is Lanczos algorithm\cite{lanczos1950iteration}. The general idea about this algorithm is that instead of directly work on an $N \times N$ matrix, we first generate a skinny $N \times m$ matrix(M $\ll$ N). Then it computes a small $M \times M$ dense matrix which has good approximation to the eigenvalues of the original matrix. In this case, we directly apply quadratic algorithm to top-k eigenvalues. Notice that k $<$ M.
@@ -251,6 +238,38 @@ Since the algorithm of Lanczos algorithm is matrix calculation intensive, so we 
 \subsubsection{SQL code}
 Please refer to the code in {\bf Apppendix}.
 
+\subsection{Belief Propagation}
+For belief propagation, we use the fabp method proposed in paper\cite{DBLP:conf/pkdd/KoutraKKCPF11}.
+
+\subsubsection{method}
+It can be shown that the solution of belief propagation can be approximated by the linear system:$$[\mathbf{I}	 + a\mathbf{D} - c\mathbf{A}]\mathbf{b_h} = \mathbf{\phi_h}$$ 
+where $\mathbf{A}$ is the n by n symmetric adjacency matrix, $\mathbf{D}$ is the diagonal matrix of degrees, $b_h$ corresponds to the vector of final beliefs for each node, $\phi_h$ is prior belief vector, and $h_h$ is the homophily factor,  $a = 4h_h^2/(1 - h_h^2)$ and $c = 2h_h / (1-4h_h^2)$.
+
+To solve this linear system, we can see :$\mathbf{I} + a\mathbf{D} - c\mathbf{A}$ as the form $\mathbf{I} - \mathbf{W}$, where $\mathbf{W} = -a\mathbf{D} + c\mathbf{A}$, and using the expansion:$$(\mathbf{I} - \mathbf{W})^{-1} = \mathbf{I} + \mathbf{W} + \mathbf{W}^2 + \mathbf{W}^3 + ...$$
+
+and the solution of the linear system is given by the formula:
+$$\mathbf{b_h} = (\mathbf{I} - \mathbf{W}^{-1})\mathbf{\phi_h} =\mathbf{\phi_h}  + \mathbf{\phi_h} \mathbf{W} + \mathbf{\phi_h} \mathbf{W}^2 + \mathbf{\phi_h} \mathbf{W}^3 + ...$$
+
+Given this power method, the implementation is pretty straightforward as described in algorithm \ref{bp:algo4}.
+\begin{algorithm}[!htbf]
+\caption{Belief Propagation}
+\begin{algorithmic}
+\STATE{Bulk load graph into an edge table in database.}
+\STATE{Initialize $h_h = 0.001 $}
+\STATE{Initialize the initial belief of every node as prior belief}
+\REPEAT
+\STATE{Update the belief of node by $b_h(i) = b_h(i-1)\mathbf{W} + \mathbf{\phi_h}$ }
+\UNTIL{Convergence}
+\end{algorithmic}
+\label{bp:algo4}
+\end{algorithm}
+
+\subsubsection{Idea of SQL Implementation}
+The major computation involved is matrix vector multiplication, which is easy to implement in SQL using join and group by step. Furthermore we've wraped all the matrix related operation in our host language Python, as described in previous task.
+
+\subsubsection{SQL code}
+Please refer to the code in {\bf Appendix}.
+
 \subsection{Count of Triangle}
 We use a simple technique proposed by \cite{tsourakakis2008fast}, its general idea is build upon a theorem that the count of triangles in a graph is proportional to the sum of cubes of eigenvalues of the graph. 
 
@@ -264,7 +283,7 @@ The formula to count global triangle is sum of cubes of eigenvalues, which is:
     \Delta(G) \gets \frac{1}{6} \sum_{j=1}^{i-1}\lambda_{j}^{3}
 \end{equation}
 
-\begin{algorithm}
+\begin{algorithm}[!htbf]
 \caption{The EigenTriangle algorithm}
 {\bf Require: } Adjecency matrix A (n X n)\\
 {\bf Require: } Tolerence \emph{tol}\\
@@ -365,6 +384,10 @@ Please refer to the code in {\bf Apppendix}.
 
 \subsection{Minimum Spanning Tree}
 We use the classical Prim's algorithm for this additional task. We abandon the Kruskal's algorithm because the disjoint set is not easy to implement using SQL.
+
+\subsubsection{method}
+The general idea of Prim's algorithm is to first initialize a tree with a single vertex, chosen arbitrarily from the graph, Then we grow the tree by one edge, the one that connect
+the tree to vertices not yet in the tree with minimum cost(weight). We repeat this process until all of the nodes in a graph is in the tree(of course we're assuming that the graph is weighted and connected).
 
 \subsubsection{Idea of SQL implementation}
 The implementation in SQL can be described in algorithm \ref{algo:prim}.
